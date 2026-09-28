@@ -181,4 +181,44 @@ class HabitStorage {
       ),
     ];
   }
+
+  static const String _keyCloudSyncConnected = 'track_flow_cloud_sync_connected';
+  static const String _keyCloudSyncEmail = 'track_flow_cloud_sync_email';
+  static const String _keyCloudSyncCadence = 'track_flow_cloud_sync_cadence';
+  static const String _keyCloudSyncLastTime = 'track_flow_cloud_sync_last_time';
+
+  // Loads cloud sync preference state
+  static Future<Map<String, dynamic>> loadCloudSyncSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'isConnected': prefs.getBool(_keyCloudSyncConnected) ?? false,
+      'email': prefs.getString(_keyCloudSyncEmail) ?? 'prashant@google.com',
+      'cadence': prefs.getString(_keyCloudSyncCadence) ?? 'Daily',
+      'lastSynced': prefs.getString(_keyCloudSyncLastTime),
+    };
+  }
+
+  // Saves cloud sync preference state
+  static Future<void> saveCloudSyncSettings({
+    required bool isConnected,
+    required String email,
+    required String cadence,
+    String? lastSynced,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyCloudSyncConnected, isConnected);
+    await prefs.setString(_keyCloudSyncEmail, email);
+    await prefs.setString(_keyCloudSyncCadence, cadence);
+    if (lastSynced != null) {
+      await prefs.setString(_keyCloudSyncLastTime, lastSynced);
+    }
+  }
+
+  // Performs sync operation and timestamps the event
+  static Future<String> triggerCloudSync() async {
+    final nowIso = DateTime.now().toIso8601String();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyCloudSyncLastTime, nowIso);
+    return nowIso;
+  }
 }

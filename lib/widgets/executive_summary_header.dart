@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_spacing.dart';
 import '../models/habit_item.dart';
 
 enum ViewMode { flow, matrix, heatmap }
@@ -52,7 +53,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
     int maxStreak,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         border: Border(
@@ -83,7 +84,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                   child: Icon(Icons.bolt_rounded, size: 18, color: AppColors.primary),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppSpacing.p8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -109,7 +110,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
 
               // Sleek streak pill with vector flame
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.streakAmber.withValues(alpha: 0.12)
@@ -128,7 +129,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                       size: 13,
                       color: AppColors.streakAmber,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: AppSpacing.p4),
                     Text(
                       '$maxStreak d',
                       style: TextStyle(
@@ -140,21 +141,24 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: AppSpacing.p8),
 
-              // Backup & Settings
-              IconButton(
-                icon: const Icon(Icons.tune_rounded, size: 18),
-                color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                tooltip: 'Backup & Settings',
-                onPressed: onOpenBackupSheet,
+              // Backup & Settings (48x48 hit target)
+              TouchTarget(
+                minWidth: 48,
+                minHeight: 48,
+                borderRadius: BorderRadius.circular(8),
+                onTap: onOpenBackupSheet,
+                child: Icon(
+                  Icons.tune_rounded,
+                  size: 20,
+                  color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
+                ),
               ),
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.p8),
 
           // Momentum row
           Row(
@@ -179,7 +183,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: AppSpacing.p4),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -190,7 +194,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.p8),
 
           // View Switcher Bar
           _buildViewSwitcherBar(context, isDark),
@@ -209,7 +213,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
     int maxStreak,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         border: Border(
@@ -234,7 +238,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               child: Icon(Icons.bolt_rounded, size: 16, color: AppColors.primary),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.p8),
           Text(
             'TrackFlow',
             style: TextStyle(
@@ -244,17 +248,17 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.p16),
 
           // View Switcher in the center
           Expanded(
             child: _buildViewSwitcherBar(context, isDark),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.p16),
 
           // Streak Pill
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
             decoration: BoxDecoration(
               color: isDark
                   ? AppColors.streakAmber.withValues(alpha: 0.12)
@@ -273,7 +277,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                   size: 13,
                   color: AppColors.streakAmber,
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpacing.p4),
                 Text(
                   '$maxStreak d',
                   style: TextStyle(
@@ -285,16 +289,19 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.p8),
 
-          // Backup & Settings
-          IconButton(
-            icon: const Icon(Icons.tune_rounded, size: 18),
-            color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            tooltip: 'Backup & Settings',
-            onPressed: onOpenBackupSheet,
+          // Backup & Settings (48x48 hit target)
+          TouchTarget(
+            minWidth: 48,
+            minHeight: 48,
+            borderRadius: BorderRadius.circular(8),
+            onTap: onOpenBackupSheet,
+            child: Icon(
+              Icons.tune_rounded,
+              size: 20,
+              color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
+            ),
           ),
         ],
       ),
@@ -346,10 +353,12 @@ class ExecutiveSummaryHeader extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Expanded(
-      child: GestureDetector(
+      child: TouchTarget(
+        minHeight: 44,
+        borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5.5),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected
                 ? (isDark ? AppColors.darkCard : Colors.white)
@@ -372,7 +381,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                     ? AppColors.primary
                     : (isDark ? AppColors.textMuted : Colors.black45),
               ),
-              const SizedBox(width: 5),
+              const SizedBox(width: AppSpacing.p4),
               Flexible(
                 child: Text(
                   title,

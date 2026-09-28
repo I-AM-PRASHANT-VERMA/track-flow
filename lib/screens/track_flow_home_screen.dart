@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_spacing.dart';
 import '../core/services/habit_storage.dart';
 import '../models/habit_item.dart';
 import '../widgets/add_edit_habit_sheet.dart';
@@ -146,11 +147,11 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
                 ],
               ),
       ),
-      // Safe FAB placement clear of Android navigation bar
+      // Safe FAB placement clear of Android 3-button navigation bar
       floatingActionButton: Padding(
         padding: EdgeInsets.only(
-          bottom: navInset > 0 ? (navInset + 8) : 16,
-          right: 4,
+          bottom: (navInset > 0 ? navInset : 0) + AppSpacing.p16,
+          right: AppSpacing.p8,
         ),
         child: FloatingActionButton.extended(
           backgroundColor: AppColors.primary,
@@ -222,10 +223,10 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
     return ListView(
       key: const ValueKey('flow_view'),
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: 96 + navInset,
+        left: AppSpacing.p16,
+        right: AppSpacing.p16,
+        top: AppSpacing.p12,
+        bottom: 112 + navInset,
       ),
       children: [
         if (morningHabits.isNotEmpty) ...[
