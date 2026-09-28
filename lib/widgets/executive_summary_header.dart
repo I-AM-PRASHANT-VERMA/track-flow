@@ -97,13 +97,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                       color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                     ),
                   ),
-                  Text(
-                    'Zero-bloat consistency engine',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? AppColors.textMuted : AppColors.textDarkSecondary,
-                    ),
-                  ),
+
                 ],
               ),
               const Spacer(),

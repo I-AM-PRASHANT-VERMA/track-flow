@@ -481,7 +481,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
         borderRadius: BorderRadius.circular(8),
         onTap: () => setState(() => _selectedTimeOfDay = time),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)

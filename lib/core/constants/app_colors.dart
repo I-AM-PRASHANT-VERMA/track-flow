@@ -23,8 +23,8 @@ class AppColors {
 
   // Typography tokens - WCAG AAA compliant
   static const Color textPrimary = Color(0xFFF4F4F5);     // Zinc-100 (14.2:1 contrast against #000000)
-  static const Color textSecondary = Color(0xFFA1A1AA);   // Zinc-400 (7.1:1 contrast)
-  static const Color textMuted = Color(0xFF71717A);       // Zinc-500
+  static const Color textSecondary = Color(0xFFC0C0CC);   // Lifted Zinc-400 — readable secondary on OLED black
+  static const Color textMuted = Color(0xFFA0A0B0);       // Lifted Zinc-500 — visible but not competing with primary
   static const Color textDarkPrimary = Color(0xFF18181B); // Never pure black in light mode
   static const Color textDarkSecondary = Color(0xFF52525B);
 
