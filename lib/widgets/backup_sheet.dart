@@ -195,25 +195,29 @@ class _BackupSheetState extends State<BackupSheet> {
             ),
             const SizedBox(height: AppSpacing.p16),
 
-            // Header Title
-            Row(
-              children: [
-                const Icon(Icons.cloud_sync_rounded, color: AppColors.primary, size: 22),
-                const SizedBox(width: AppSpacing.p8),
-                Text(
-                  'Backup & Cloud Sync',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.3,
-                    color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+            // Header Title (Centered)
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.cloud_sync_rounded, color: AppColors.primary, size: 22),
+                  const SizedBox(width: AppSpacing.p8),
+                  Text(
+                    'Backup & Cloud Sync',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: AppSpacing.p4),
+            const SizedBox(height: AppSpacing.p8),
             Text(
-              'Keep your routines protected across devices with zero vendor lock-in.',
+              'Keep your routines protected across devices.',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? AppColors.textMuted : AppColors.textDarkSecondary,
@@ -224,6 +228,7 @@ class _BackupSheetState extends State<BackupSheet> {
 
             if (_statusMessage != null) ...[
               Container(
+                alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.12),
@@ -232,6 +237,7 @@ class _BackupSheetState extends State<BackupSheet> {
                 ),
                 child: Text(
                   _statusMessage!,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -410,6 +416,7 @@ class _BackupSheetState extends State<BackupSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.shield_outlined, size: 18, color: AppColors.textSecondary),
                       const SizedBox(width: AppSpacing.p8),
@@ -426,6 +433,7 @@ class _BackupSheetState extends State<BackupSheet> {
                   const SizedBox(height: AppSpacing.p4),
                   const Text(
                     'No internet needed. Export your habits as JSON and save or share it anywhere.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.p12),

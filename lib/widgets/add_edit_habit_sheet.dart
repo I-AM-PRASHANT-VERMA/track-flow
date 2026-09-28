@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_spacing.dart';
 import '../models/habit_item.dart';
 
-// Streamlined bottom sheet for creating or editing habits with vector icon picker and Radix styling
+// Smooth modal bottom sheet for creating or editing habits
 class AddEditHabitSheet extends StatefulWidget {
   final HabitItem? initialHabit;
   final ValueChanged<HabitItem> onSave;
@@ -94,104 +95,71 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     final isEditing = widget.initialHabit != null;
     final currentColor = Color(_selectedColor);
     final mediaQuery = MediaQuery.of(context);
-    final keyboardHeight = mediaQuery.viewInsets.bottom;
-    final navBarHeight = mediaQuery.viewPadding.bottom;
-    // Elevates sheet button above soft keyboard or 3-button system navigation bar
-    final bottomPadding = (keyboardHeight > 0 ? keyboardHeight : navBarHeight) + AppSpacing.p24;
+    final keyboardInset = mediaQuery.viewInsets.bottom;
+    final navBarInset = mediaQuery.viewPadding.bottom;
 
-    return Container(
-      padding: EdgeInsets.only(
-        left: AppSpacing.p24,
-        right: AppSpacing.p24,
-        top: AppSpacing.p16,
-        bottom: bottomPadding,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(
-          top: BorderSide(
-            color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
-            width: 1,
+    return Padding(
+      // Smoothly lifts by the exact keyboard height without double-padding jumps
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: Container(
+        padding: EdgeInsets.only(
+          left: AppSpacing.p16,
+          right: AppSpacing.p16,
+          top: AppSpacing.p16,
+          bottom: navBarInset + AppSpacing.p16,
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+              width: 1,
+            ),
           ),
         ),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle Bar
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCardBorder : Colors.black12,
-                  borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle Bar
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkCardBorder : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
+              const SizedBox(height: 14),
 
-            // Sheet Title
-            Text(
-              isEditing ? 'Edit Habit / Ritual' : 'New Habit / Ritual',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-                color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+              // Sheet Title
+              Text(
+                isEditing ? 'Edit Habit / Ritual' : 'New Habit / Ritual',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                  color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Icon & Title Row
-            Row(
-              children: [
-                // Vector Icon Picker Trigger
-                PopupMenuButton<String>(
-                  initialValue: _selectedIcon,
-                  tooltip: 'Select Icon',
-                  color: isDark ? AppColors.darkCard : Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: BorderSide(
-                      color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
-                    ),
-                  ),
-                  itemBuilder: (context) => AppIcons.availableIcons.map((item) {
-                    final key = item['key'] as String;
-                    final label = item['label'] as String;
-                    final icon = item['icon'] as IconData;
-                    return PopupMenuItem<String>(
-                      value: key,
-                      child: Row(
-                        children: [
-                          Icon(icon, size: 18, color: currentColor),
-                          const SizedBox(width: 10),
-                          Text(
-                            label,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onSelected: (ico) => setState(() => _selectedIcon = ico),
-                  child: Container(
-                    width: 48,
-                    height: 48,
+              // Title Input with active icon indicator
+              Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
                     decoration: BoxDecoration(
-                      color: currentColor.withValues(alpha: isDark ? 0.14 : 0.09),
+                      color: currentColor.withValues(alpha: isDark ? 0.16 : 0.10),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: currentColor.withValues(alpha: 0.35),
-                        width: 1.0,
+                        color: currentColor.withValues(alpha: 0.4),
+                        width: 1.2,
                       ),
                     ),
                     child: Center(
@@ -202,269 +170,339 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-
-                // Title Input
-                Expanded(
-                  child: TextField(
-                    controller: _titleController,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'Habit Title',
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                      hintText: 'e.g. Read 20 pages, Hydration',
-                      hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                      filled: true,
-                      fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Category Chips
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: _commonCategories.map((cat) {
-                  final isSelected = _selectedCategory == cat;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.p8),
-                    child: TouchTarget(
-                      minWidth: 48,
-                      minHeight: 44,
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () => setState(() => _selectedCategory = cat),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
-                              : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppColors.primary.withValues(alpha: 0.4)
-                                : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-                            width: 0.9,
-                          ),
-                        ),
-                        child: Text(
-                          cat,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected
-                                ? (isDark ? AppColors.textPrimary : AppColors.primary)
-                                : (isDark ? AppColors.textMuted : Colors.black54),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.p16),
-
-            // Time of Day Selector with Vector Icons
-            const Text(
-              'RITUAL TIME OF DAY',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.6,
-                color: AppColors.textMuted,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.p8),
-            Row(
-              children: [
-                _buildTimeChip(HabitTimeOfDay.morning, 'Morning', Icons.wb_twilight_rounded),
-                const SizedBox(width: AppSpacing.p8),
-                _buildTimeChip(HabitTimeOfDay.afternoon, 'Afternoon', Icons.wb_sunny_rounded),
-                const SizedBox(width: AppSpacing.p8),
-                _buildTimeChip(HabitTimeOfDay.evening, 'Evening', Icons.nightlight_round),
-                const SizedBox(width: AppSpacing.p8),
-                _buildTimeChip(HabitTimeOfDay.anytime, 'Anytime', Icons.all_inclusive_rounded),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.p16),
-
-            // Tracking Type
-            const Text(
-              'TRACKING TYPE',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.6,
-                color: AppColors.textMuted,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.p8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildTypeButton(
-                    type: HabitType.boolean,
-                    title: 'Yes / No (1-Tap)',
-                    icon: Icons.check_circle_outline_rounded,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.p8),
-                Expanded(
-                  child: _buildTypeButton(
-                    type: HabitType.measurable,
-                    title: 'Measurable Target',
-                    icon: Icons.tune_rounded,
-                  ),
-                ),
-              ],
-            ),
-
-            if (_selectedType == HabitType.measurable) ...[
-              const SizedBox(height: AppSpacing.p16),
-              Row(
-                children: [
+                  const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
-                      controller: _targetController,
-                      keyboardType: TextInputType.number,
+                      controller: _titleController,
+                      textCapitalization: TextCapitalization.sentences,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.textPrimary : Colors.black87,
+                        color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'Daily Target',
+                        labelText: 'Habit Title',
                         labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                        hintText: 'e.g. 8, 20, 90',
+                        hintText: 'e.g. Morning 5K, Read 20 pages',
+                        hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                         filled: true,
                         fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.p8),
-                  Expanded(
-                    child: TextField(
-                      controller: _unitController,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.textPrimary : Colors.black87,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: 'Unit Label',
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                        hintText: 'glasses, pages, mins',
-                        filled: true,
-                        fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: currentColor, width: 1.5),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ],
+              const SizedBox(height: 14),
 
-            const SizedBox(height: AppSpacing.p16),
-
-            // Color Palette Selector (Radix / Tailwind 8-Scale)
-            const Text(
-              'ACCENT COLOR',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.6,
-                color: AppColors.textMuted,
+              // Fast inline icon selector strip (no popup menu, no keyboard dismiss jumps)
+              const Text(
+                'CHOOSE ICON',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.p8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: AppColors.habitPalettes.map((c) {
-                final isSelected = _selectedColor == c.toARGB32();
-                return TouchTarget(
-                  minWidth: 44,
-                  minHeight: 44,
-                  borderRadius: BorderRadius.circular(22),
-                  onTap: () => setState(() => _selectedColor = c.toARGB32()),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: c,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? Colors.white : Colors.transparent,
-                        width: 2.0,
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: AppIcons.availableIcons.map((item) {
+                    final key = item['key'] as String;
+                    final icon = item['icon'] as IconData;
+                    final isSel = _selectedIcon == key;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _selectedIcon = key);
+                        },
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: isSel
+                                ? currentColor.withValues(alpha: isDark ? 0.25 : 0.15)
+                                : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSel
+                                  ? currentColor
+                                  : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
+                              width: isSel ? 1.5 : 0.8,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              icon,
+                              size: 18,
+                              color: isSel
+                                  ? currentColor
+                                  : (isDark ? AppColors.textMuted : Colors.black54),
+                            ),
+                          ),
+                        ),
                       ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: c.withValues(alpha: 0.4),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              )
-                            ]
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Category Chips
+              const Text(
+                'CATEGORY',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _commonCategories.map((cat) {
+                    final isSelected = _selectedCategory == cat;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _selectedCategory = cat);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12)
+                                : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
+                              width: isSelected ? 1.2 : 0.8,
+                            ),
+                          ),
+                          child: Text(
+                            cat,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected
+                                  ? (isDark ? AppColors.textPrimary : AppColors.primary)
+                                  : (isDark ? AppColors.textMuted : Colors.black54),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Time of Day Selector with clean borders and zero outer glow
+              const Text(
+                'RITUAL TIME OF DAY',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _buildTimeChip(HabitTimeOfDay.morning, 'Morning', Icons.wb_twilight_rounded),
+                  const SizedBox(width: 8),
+                  _buildTimeChip(HabitTimeOfDay.afternoon, 'Afternoon', Icons.wb_sunny_rounded),
+                  const SizedBox(width: 8),
+                  _buildTimeChip(HabitTimeOfDay.evening, 'Evening', Icons.nightlight_round),
+                  const SizedBox(width: 8),
+                  _buildTimeChip(HabitTimeOfDay.anytime, 'Anytime', Icons.all_inclusive_rounded),
+                ],
+              ),
+
+              const SizedBox(height: 14),
+
+              // Tracking Type
+              const Text(
+                'TRACKING TYPE',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildTypeButton(
+                      type: HabitType.boolean,
+                      title: 'Yes / No (1-Tap)',
+                      icon: Icons.check_circle_outline_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildTypeButton(
+                      type: HabitType.measurable,
+                      title: 'Measurable Target',
+                      icon: Icons.tune_rounded,
+                    ),
+                  ),
+                ],
+              ),
+
+              if (_selectedType == HabitType.measurable) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _targetController,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.textPrimary : Colors.black87,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Daily Target',
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          hintText: 'e.g. 8, 20, 90',
+                          filled: true,
+                          fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _unitController,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.textPrimary : Colors.black87,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Unit Label',
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          hintText: 'glasses, pages, mins',
+                          filled: true,
+                          fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+
+              const SizedBox(height: 14),
+
+              // Color Palette Selector
+              const Text(
+                'ACCENT COLOR',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: AppColors.habitPalettes.map((c) {
+                  final isSelected = _selectedColor == c.toARGB32();
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedColor = c.toARGB32());
+                    },
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: c,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? Colors.white : Colors.transparent,
+                          width: 2.2,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: c.withValues(alpha: 0.45),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                )
+                              ]
+                            : null,
+                      ),
+                      child: isSelected
+                          ? const Icon(Icons.check, size: 16, color: Colors.black)
                           : null,
                     ),
-                    child: isSelected
-                        ? const Icon(Icons.check, size: 16, color: Colors.black)
-                        : null,
-                  ),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: AppSpacing.p24),
-
-            // Save Action Button
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: const Color(0xFF0B0F17),
-                minimumSize: const Size.fromHeight(48),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
+                  );
+                }).toList(),
               ),
-              onPressed: _handleSubmit,
-              child: Text(
-                isEditing ? 'Save Changes' : 'Create Habit',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+
+              const SizedBox(height: 20),
+
+              // Save Action Button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: const Color(0xFF0B0F17),
+                  minimumSize: const Size.fromHeight(48),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+                onPressed: _handleSubmit,
+                child: Text(
+                  isEditing ? 'Save Changes' : 'Create Habit',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -475,23 +513,24 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Expanded(
-      child: TouchTarget(
-        minWidth: 48,
-        minHeight: 48,
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => setState(() => _selectedTimeOfDay = time),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() => _selectedTimeOfDay = time);
+        },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
+                ? AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12)
                 : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.4)
+                  ? AppColors.primary
                   : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-              width: 0.9,
+              width: isSelected ? 1.2 : 0.8,
             ),
           ),
           child: Column(
@@ -502,7 +541,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                 size: 15,
                 color: isSelected ? AppColors.primary : AppColors.textMuted,
               ),
-              const SizedBox(height: AppSpacing.p4),
+              const SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
@@ -528,22 +567,24 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     final isSelected = _selectedType == type;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return TouchTarget(
-      minHeight: 48,
-      borderRadius: BorderRadius.circular(10),
-      onTap: () => setState(() => _selectedType = type),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedType = type);
+      },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: AppSpacing.p8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
+              ? AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12)
               : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.4)
+                ? AppColors.primary
                 : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-            width: 0.9,
+            width: isSelected ? 1.2 : 0.8,
           ),
         ),
         child: Row(
@@ -554,7 +595,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
               size: 16,
               color: isSelected ? AppColors.primary : AppColors.textMuted,
             ),
-            const SizedBox(width: AppSpacing.p8),
+            const SizedBox(width: 6),
             Flexible(
               child: Text(
                 title,

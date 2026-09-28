@@ -5,29 +5,29 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_spacing.dart';
 import '../models/habit_item.dart';
 
-// 3 display densities so every user gets their preferred readability level
+// Display density levels adjusting row height and visual scale
 enum MatrixDensity { compact, medium, comfortable }
 
 extension _MatrixDensityValues on MatrixDensity {
-  double get cellSize {
+  double get rowHeight {
     switch (this) {
       case MatrixDensity.compact:
-        return 32.0;
+        return 36.0;
       case MatrixDensity.medium:
-        return 40.0;
+        return 44.0;
       case MatrixDensity.comfortable:
-        return 48.0;
+        return 52.0;
     }
   }
 
-  double get habitLabelWidth {
+  double get titleWidth {
     switch (this) {
       case MatrixDensity.compact:
-        return 110.0;
+        return 105.0;
       case MatrixDensity.medium:
-        return 130.0;
+        return 115.0;
       case MatrixDensity.comfortable:
-        return 150.0;
+        return 125.0;
     }
   }
 
@@ -36,20 +36,31 @@ extension _MatrixDensityValues on MatrixDensity {
       case MatrixDensity.compact:
         return 11.0;
       case MatrixDensity.medium:
-        return 12.5;
+        return 12.0;
       case MatrixDensity.comfortable:
-        return 13.5;
+        return 13.0;
     }
   }
 
   double get iconSize {
     switch (this) {
       case MatrixDensity.compact:
-        return 12.0;
+        return 13.0;
       case MatrixDensity.medium:
-        return 14.0;
+        return 15.0;
       case MatrixDensity.comfortable:
-        return 16.0;
+        return 17.0;
+    }
+  }
+
+  double get boxSize {
+    switch (this) {
+      case MatrixDensity.compact:
+        return 20.0;
+      case MatrixDensity.medium:
+        return 24.0;
+      case MatrixDensity.comfortable:
+        return 28.0;
     }
   }
 
@@ -65,7 +76,7 @@ extension _MatrixDensityValues on MatrixDensity {
   }
 }
 
-// Weekly matrix showing all habits across 7 days with user-selectable density
+// 7-Day matrix view that stretches cleanly to fit screen width with zero dead space
 class MultiDayMatrixView extends StatefulWidget {
   final List<HabitItem> habits;
   final void Function(HabitItem habit, DateTime date, int count) onToggleCell;
@@ -92,276 +103,291 @@ class _MultiDayMatrixViewState extends State<MultiDayMatrixView> {
     final activeHabits = widget.habits.where((h) => !h.isArchived).toList();
     final navInset = MediaQuery.of(context).viewPadding.bottom;
 
-    // Calculate if 7 days fit without horizontal scroll given current density
-    final screenWidth = MediaQuery.of(context).size.width;
-    final neededWidth = _density.habitLabelWidth + (_density.cellSize * 7) + 32; // 32 = card padding
-    final fitsOnScreen = neededWidth <= screenWidth;
-
-    return Column(
-      children: [
-        // Density size picker row
-        Padding(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p12, AppSpacing.p16, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                'SIZE',
-                style: const TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.6,
-                  color: AppColors.textMuted,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.p8),
-              ...MatrixDensity.values.map((d) {
-                final isSel = _density == d;
-                return GestureDetector(
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() => _density = d);
-                  },
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    margin: const EdgeInsets.only(left: AppSpacing.p4),
-                    decoration: BoxDecoration(
-                      color: isSel
-                          ? AppColors.primary.withValues(alpha: 0.15)
-                          : (isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0)),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: isSel
-                            ? AppColors.primary.withValues(alpha: 0.5)
-                            : Colors.transparent,
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        d.label,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: isSel ? AppColors.primary : AppColors.textMuted,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: AppSpacing.p8),
-
-        Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(
-              left: AppSpacing.p16,
-              right: AppSpacing.p16,
-              bottom: 96 + navInset,
-            ),
-            child: Container(
-              // Clip to card bounds so inner content never bleeds out
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
-                  width: 1,
-                ),
-              ),
-              child: _buildMatrixContent(
-                isDark: isDark,
-                today: today,
-                days: days,
-                activeHabits: activeHabits,
-                fitsOnScreen: fitsOnScreen,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMatrixContent({
-    required bool isDark,
-    required DateTime today,
-    required List<DateTime> days,
-    required List<HabitItem> activeHabits,
-    required bool fitsOnScreen,
-  }) {
-    // Wraps in horizontal scroll only when compact mode still doesn't fit very long habit names
-    Widget inner = Padding(
-      padding: const EdgeInsets.all(AppSpacing.p12),
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        left: AppSpacing.p16,
+        right: AppSpacing.p16,
+        top: AppSpacing.p12,
+        bottom: 96 + navInset,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
-          Row(
-            children: [
-              SizedBox(
-                width: _density.habitLabelWidth,
-                child: Text(
-                  'HABIT',
-                  style: const TextStyle(
-                    fontSize: 9.5,
+          // Top bar with density toggle
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.p8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '7-DAY PERFORMANCE',
+                  style: TextStyle(
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                    color: AppColors.textMuted,
+                    letterSpacing: 0.6,
+                    color: isDark ? AppColors.textMuted : Colors.black54,
                   ),
                 ),
-              ),
-              ...days.map((dt) {
-                final isToday = dt.year == today.year &&
-                    dt.month == today.month &&
-                    dt.day == today.day;
-                return SizedBox(
-                  width: _density.cellSize,
-                  child: Column(
-                    children: [
-                      Text(
-                        DateFormat('E').format(dt).substring(0, 1).toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          color: isToday ? AppColors.primary : AppColors.textMuted,
-                        ),
-                      ),
-                      Text(
-                        DateFormat('d').format(dt),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: isToday ? FontWeight.w900 : FontWeight.w600,
-                          color: isToday
-                              ? AppColors.primary
-                              : (isDark ? AppColors.textSecondary : Colors.black87),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ),
-
-          const SizedBox(height: AppSpacing.p8),
-          Divider(height: 1, color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
-          const SizedBox(height: AppSpacing.p8),
-
-          // Habit rows
-          ...activeHabits.map((habit) {
-            final habitColor = AppColors.getHabitColor(habit.colorValue);
-            final rowSpacing = _density == MatrixDensity.compact ? 4.0 : 6.0;
-
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: rowSpacing),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: _density.habitLabelWidth,
-                    child: Row(
-                      children: [
-                        Icon(
-                          AppIcons.getIcon(habit.iconCode),
-                          size: _density.iconSize,
-                          color: habitColor,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            habit.title,
-                            style: TextStyle(
-                              fontSize: _density.fontSize,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                Row(
+                  children: MatrixDensity.values.map((d) {
+                    final isSel = _density == d;
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() => _density = d);
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        margin: const EdgeInsets.only(left: 4),
+                        decoration: BoxDecoration(
+                          color: isSel
+                              ? AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.14)
+                              : (isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: isSel ? AppColors.primary : Colors.transparent,
+                            width: 1.1,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  ...days.map((dt) {
-                    final isToday = dt.year == today.year &&
-                        dt.month == today.month &&
-                        dt.day == today.day;
-                    final isDone = habit.isCompletedOn(dt);
-                    final isScheduled = habit.scheduledDays.contains(dt.weekday);
-                    final checkSize = (_density.cellSize * 0.6).clamp(18.0, 36.0);
-
-                    return SizedBox(
-                      width: _density.cellSize,
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            final next = isDone ? 0 : habit.targetPerDay;
-                            widget.onToggleCell(habit, dt, next);
-                          },
-                          child: Container(
-                            width: checkSize,
-                            height: checkSize,
-                            decoration: BoxDecoration(
-                              color: !isScheduled
-                                  ? Colors.transparent
-                                  : (isDone
-                                      ? habitColor.withValues(alpha: isDark ? 0.30 : 0.85)
-                                      : (isDark
-                                          ? AppColors.darkSurface
-                                          : const Color(0xFFEEF2F7))),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                // Always show a visible border so empty cells are clear
-                                color: isToday
-                                    ? habitColor
-                                    : (!isScheduled
-                                        ? (isDark
-                                            ? AppColors.darkCardBorder.withValues(alpha: 0.5)
-                                            : const Color(0xFFDDE3ED))
-                                        : (isDone
-                                            ? habitColor.withValues(alpha: 0.55)
-                                            : (isDark
-                                                ? AppColors.darkCardBorder
-                                                : const Color(0xFFCBD5E1)))),
-                                width: isToday ? 1.4 : 0.9,
-                              ),
+                        child: Center(
+                          child: Text(
+                            d.label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                              color: isSel
+                                  ? AppColors.primary
+                                  : (isDark ? AppColors.textMuted : Colors.black54),
                             ),
-                            child: isDone
-                                ? Center(
-                                    child: Icon(
-                                      Icons.check_rounded,
-                                      size: checkSize * 0.5,
-                                      color: isDark ? habitColor : Colors.white,
-                                    ),
-                                  )
-                                : null,
                           ),
                         ),
                       ),
                     );
-                  }),
-                ],
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+
+          // Main Card Container fitting edge to edge
+          Container(
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkCard : AppColors.lightCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+                width: 1,
               ),
-            );
-          }),
+            ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = constraints.maxWidth;
+                const innerPadding = 12.0;
+                final availableWidth = cardWidth - (innerPadding * 2);
+
+                final titleColWidth = _density.titleWidth;
+                final remainingWidth = availableWidth - titleColWidth;
+                final dayColWidth = (remainingWidth / 7.0).clamp(24.0, 60.0);
+
+                return Padding(
+                  padding: const EdgeInsets.all(innerPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Header Row
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: titleColWidth,
+                            child: Text(
+                              'HABIT / RITUAL',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.5,
+                                color: isDark ? AppColors.textMuted : Colors.black54,
+                              ),
+                            ),
+                          ),
+                          ...days.map((dt) {
+                            final isToday = dt.year == today.year &&
+                                dt.month == today.month &&
+                                dt.day == today.day;
+                            return SizedBox(
+                              width: dayColWidth,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    DateFormat('E').format(dt).substring(0, 1).toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: isToday
+                                          ? AppColors.primary
+                                          : (isDark ? AppColors.textMuted : Colors.black45),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    DateFormat('d').format(dt),
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: isToday ? FontWeight.w900 : FontWeight.w600,
+                                      color: isToday
+                                          ? AppColors.primary
+                                          : (isDark ? AppColors.textSecondary : Colors.black87),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+                      Divider(
+                        height: 1,
+                        color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Habits Rows
+                      if (activeHabits.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: Text(
+                              'No habits scheduled',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? AppColors.textMuted : Colors.black45,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        ...activeHabits.map((habit) {
+                          final habitColor = AppColors.getHabitColor(habit.colorValue);
+
+                          return SizedBox(
+                            height: _density.rowHeight,
+                            child: Row(
+                              children: [
+                                // Title and icon
+                                SizedBox(
+                                  width: titleColWidth,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        AppIcons.getIcon(habit.iconCode),
+                                        size: _density.iconSize,
+                                        color: habitColor,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          habit.title,
+                                          style: TextStyle(
+                                            fontSize: _density.fontSize,
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark
+                                                ? AppColors.textPrimary
+                                                : AppColors.textDarkPrimary,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // 7 Day cells
+                                ...days.map((dt) {
+                                  final isToday = dt.year == today.year &&
+                                      dt.month == today.month &&
+                                      dt.day == today.day;
+                                  final isDone = habit.isCompletedOn(dt);
+                                  final isScheduled = habit.scheduledDays.contains(dt.weekday);
+                                  final box = _density.boxSize;
+
+                                  // Clearly visible border even on empty/uncompleted cells
+                                  final Color borderColor;
+                                  if (isToday) {
+                                    borderColor = habitColor;
+                                  } else if (isDone) {
+                                    borderColor = habitColor.withValues(alpha: 0.6);
+                                  } else if (isScheduled) {
+                                    borderColor = isDark
+                                        ? const Color(0xFF333338)
+                                        : const Color(0xFFCBD5E1);
+                                  } else {
+                                    borderColor = isDark
+                                        ? const Color(0xFF222226)
+                                        : const Color(0xFFE2E8F0);
+                                  }
+
+                                  final Color fillColor;
+                                  if (!isScheduled) {
+                                    fillColor = Colors.transparent;
+                                  } else if (isDone) {
+                                    fillColor = habitColor.withValues(alpha: isDark ? 0.35 : 0.85);
+                                  } else {
+                                    fillColor = isDark
+                                        ? const Color(0xFF161619)
+                                        : const Color(0xFFF1F5F9);
+                                  }
+
+                                  return SizedBox(
+                                    width: dayColWidth,
+                                    child: Center(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          HapticFeedback.lightImpact();
+                                          final next = isDone ? 0 : habit.targetPerDay;
+                                          widget.onToggleCell(habit, dt, next);
+                                        },
+                                        behavior: HitTestBehavior.opaque,
+                                        child: Container(
+                                          width: box,
+                                          height: box,
+                                          decoration: BoxDecoration(
+                                            color: fillColor,
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(
+                                              color: borderColor,
+                                              width: isToday ? 1.4 : 1.0,
+                                            ),
+                                          ),
+                                          child: isDone
+                                              ? Center(
+                                                  child: Icon(
+                                                    Icons.check_rounded,
+                                                    size: box * 0.58,
+                                                    color: isDark ? habitColor : Colors.white,
+                                                  ),
+                                                )
+                                              : null,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          );
+                        }),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
-
-    // Only wrap in horizontal scroller if content genuinely doesn't fit
-    if (!fitsOnScreen) {
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: inner,
-      );
-    }
-    return inner;
   }
 }
