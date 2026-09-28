@@ -64,7 +64,7 @@ class _BackupSheetState extends State<BackupSheet> {
       if (nextState) {
         _statusMessage = '✓ Google Account connected. Cloud sync activated.';
       } else {
-        _statusMessage = 'Google Drive Sync disconnected. Offline only.';
+        _statusMessage = 'Google Drive Sync disconnected.';
       }
     });
 
@@ -414,7 +414,7 @@ class _BackupSheetState extends State<BackupSheet> {
                       const Icon(Icons.shield_outlined, size: 18, color: AppColors.textSecondary),
                       const SizedBox(width: AppSpacing.p8),
                       Text(
-                        'Offline JSON Backup & Air-Gap',
+                        'Local JSON Backup',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -425,7 +425,7 @@ class _BackupSheetState extends State<BackupSheet> {
                   ),
                   const SizedBox(height: AppSpacing.p4),
                   const Text(
-                    'No network required. Export your full habits database as JSON anytime.',
+                    'No internet needed. Export your habits as JSON and save or share it anywhere.',
                     style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.p12),

@@ -80,8 +80,14 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                     width: 0.9,
                   ),
                 ),
-                child: const Center(
-                  child: Icon(Icons.bolt_rounded, size: 18, color: AppColors.primary),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(9),
+                  child: Image.asset(
+                    'assets/images/app_logo.png',
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.p8),
@@ -228,8 +234,14 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.primary.withValues(alpha: 0.35), width: 0.8),
             ),
-            child: const Center(
-              child: Icon(Icons.bolt_rounded, size: 16, color: AppColors.primary),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/app_logo.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.p8),
@@ -347,10 +359,9 @@ class ExecutiveSummaryHeader extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Expanded(
-      child: TouchTarget(
-        minHeight: 44,
-        borderRadius: BorderRadius.circular(8),
+      child: GestureDetector(
         onTap: onTap,
+        behavior: HitTestBehavior.opaque,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
