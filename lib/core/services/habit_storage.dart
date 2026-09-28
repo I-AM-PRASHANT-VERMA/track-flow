@@ -83,8 +83,8 @@ class HabitStorage {
         id: 'habit_1',
         title: 'Hydration Goal',
         category: 'Health',
-        iconCode: '💧',
-        colorValue: 0xFF06B6D4, // Cyan
+        iconCode: 'water',
+        colorValue: 0xFF0EA5E9, // Sky
         type: HabitType.measurable,
         timeOfDay: HabitTimeOfDay.morning,
         targetPerDay: 8,
@@ -100,7 +100,7 @@ class HabitStorage {
         id: 'habit_2',
         title: 'Morning 5K / Cardio',
         category: 'Fitness',
-        iconCode: '🏃',
+        iconCode: 'fitness',
         colorValue: 0xFF10B981, // Emerald
         type: HabitType.boolean,
         timeOfDay: HabitTimeOfDay.morning,
@@ -117,7 +117,7 @@ class HabitStorage {
         id: 'habit_3',
         title: 'Deep Focus Coding',
         category: 'Focus',
-        iconCode: '💻',
+        iconCode: 'code',
         colorValue: 0xFF6366F1, // Indigo
         type: HabitType.measurable,
         timeOfDay: HabitTimeOfDay.afternoon,
@@ -134,8 +134,8 @@ class HabitStorage {
         id: 'habit_4',
         title: 'Read Non-Fiction',
         category: 'Mindset',
-        iconCode: '📚',
-        colorValue: 0xFF8B5CF6, // Violet
+        iconCode: 'book',
+        colorValue: 0xFFA855F7, // Purple
         type: HabitType.measurable,
         timeOfDay: HabitTimeOfDay.afternoon,
         targetPerDay: 20,
@@ -151,7 +151,7 @@ class HabitStorage {
         id: 'habit_5',
         title: 'Screen Cutoff at 10:30 PM',
         category: 'Sleep',
-        iconCode: '📵',
+        iconCode: 'sleep',
         colorValue: 0xFFF43F5E, // Rose
         type: HabitType.boolean,
         timeOfDay: HabitTimeOfDay.evening,
@@ -168,7 +168,7 @@ class HabitStorage {
         id: 'habit_6',
         title: 'Mindful Breathing',
         category: 'Wellness',
-        iconCode: '🧘',
+        iconCode: 'mind',
         colorValue: 0xFF14B8A6, // Teal
         type: HabitType.boolean,
         timeOfDay: HabitTimeOfDay.evening,

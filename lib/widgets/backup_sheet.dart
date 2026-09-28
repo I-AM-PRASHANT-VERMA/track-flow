@@ -4,7 +4,7 @@ import '../core/constants/app_colors.dart';
 import '../core/services/habit_storage.dart';
 import '../models/habit_item.dart';
 
-// Offline backup management & privacy verification bottom sheet
+// Offline backup management & privacy verification bottom sheet with Radix UI styling
 class BackupSheet extends StatefulWidget {
   final List<HabitItem> habits;
   final ValueChanged<List<HabitItem>> onHabitsReloaded;
@@ -67,12 +67,18 @@ class _BackupSheetState extends State<BackupSheet> {
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
-        top: 20,
+        top: 16,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+            width: 1,
+          ),
+        ),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -98,19 +104,20 @@ class _BackupSheetState extends State<BackupSheet> {
                 Text(
                   'Privacy & Offline Backups',
                   style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.textDarkPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            Text(
-              'TrackFlow is 100% private. Your data never leaves this phone. No accounts, no background trackers.',
+            const Text(
+              'TrackFlow is 100% private. Your habits never leave this device. No accounts, no telemetry.',
               style: TextStyle(
                 fontSize: 12,
-                color: isDark ? AppColors.textMuted : Colors.black54,
+                color: AppColors.textMuted,
               ),
             ),
 
@@ -120,9 +127,9 @@ class _BackupSheetState extends State<BackupSheet> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   _statusMessage!,
@@ -141,10 +148,10 @@ class _BackupSheetState extends State<BackupSheet> {
               icon: const Icon(Icons.copy_rounded, size: 16),
               label: const Text('Export & Copy Backup JSON'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? Colors.white : Colors.black87,
+                foregroundColor: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 side: BorderSide(color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: _handleExport,
             ),
@@ -156,10 +163,10 @@ class _BackupSheetState extends State<BackupSheet> {
               icon: const Icon(Icons.download_rounded, size: 16),
               label: Text(_isImportMode ? 'Cancel Import' : 'Import / Restore Backup JSON'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? Colors.white : Colors.black87,
+                foregroundColor: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 side: BorderSide(color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: () => setState(() => _isImportMode = !_isImportMode),
             ),
@@ -169,19 +176,32 @@ class _BackupSheetState extends State<BackupSheet> {
               TextField(
                 controller: _importController,
                 maxLines: 4,
-                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'monospace',
+                  color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Paste TrackFlow backup JSON text here...',
+                  hintStyle: const TextStyle(color: AppColors.textMuted),
                   filled: true,
-                  fillColor: isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9),
+                  fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.black,
+                  foregroundColor: const Color(0xFF0B0F17),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),

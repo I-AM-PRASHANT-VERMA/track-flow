@@ -4,7 +4,7 @@ import '../models/habit_item.dart';
 
 enum ViewMode { flow, matrix, heatmap }
 
-// Executive summary header showing today's progress and view mode selector
+// Executive summary header with adaptive landscape/portrait layout and soothing Radix colors
 class ExecutiveSummaryHeader extends StatelessWidget {
   final List<HabitItem> habits;
   final ViewMode activeViewMode;
@@ -22,6 +22,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     // Calculate today's stats across scheduled habits
     final todayWeekday = DateTime.now().weekday;
@@ -29,11 +30,27 @@ class ExecutiveSummaryHeader extends StatelessWidget {
     final completedToday = scheduledToday.where((h) => h.isCompletedToday).length;
     final completionPct = scheduledToday.isEmpty ? 0.0 : (completedToday / scheduledToday.length);
 
-    // Highest active streak among all habits
+    // Highest active streak
     final maxStreak = habits.isEmpty
         ? 0
         : habits.map((h) => h.currentStreak).fold(0, (max, val) => val > max ? val : max);
 
+    if (isLandscape) {
+      return _buildLandscapeHeader(context, isDark, completionPct, completedToday, scheduledToday.length, maxStreak);
+    }
+
+    return _buildPortraitHeader(context, isDark, completionPct, completedToday, scheduledToday.length, maxStreak);
+  }
+
+  // Portrait Header: Stacked executive layout
+  Widget _buildPortraitHeader(
+    BuildContext context,
+    bool isDark,
+    double completionPct,
+    int completedToday,
+    int totalToday,
+    int maxStreak,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -48,68 +65,36 @@ class ExecutiveSummaryHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Top bar: Logo, App Title, Offline Pro badge, Streak, and Backup button
+          // Top Row: Logo, Title, Streak pill, and Settings/Backup
           Row(
             children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.secondary],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
+                  color: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.35),
+                    width: 0.9,
                   ),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.bolt_rounded, size: 20, color: Colors.black),
+                  child: Icon(Icons.bolt_rounded, size: 18, color: AppColors.primary),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        'TrackFlow',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          color: isDark ? Colors.white : AppColors.textDarkPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.4),
-                            width: 0.8,
-                          ),
-                        ),
-                        child: const Text(
-                          'OFFLINE PRO',
-                          style: TextStyle(
-                            fontSize: 8.5,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'TrackFlow',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                      color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                    ),
                   ),
                   Text(
                     'Zero-bloat consistency engine',
@@ -122,28 +107,34 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               ),
               const Spacer(),
 
-              // Max Active Streak Pill
+              // Sleek streak pill with vector flame
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1B2333) : const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(10),
+                  color: isDark
+                      ? AppColors.streakAmber.withValues(alpha: 0.12)
+                      : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppColors.streakOrange.withValues(alpha: 0.35),
-                    width: 0.9,
+                    color: AppColors.streakAmber.withValues(alpha: 0.25),
+                    width: 0.8,
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('🔥', style: TextStyle(fontSize: 13)),
+                    const Icon(
+                      Icons.local_fire_department_rounded,
+                      size: 13,
+                      color: AppColors.streakAmber,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '$maxStreak d',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? AppColors.streakOrange : const Color(0xFFB45309),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? AppColors.streakAmber : const Color(0xFFB45309),
                       ),
                     ),
                   ],
@@ -151,7 +142,7 @@ class ExecutiveSummaryHeader extends StatelessWidget {
               ),
               const SizedBox(width: 6),
 
-              // Backup & Settings Button
+              // Backup & Settings
               IconButton(
                 icon: const Icon(Icons.tune_rounded, size: 18),
                 color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
@@ -163,76 +154,182 @@ class ExecutiveSummaryHeader extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Consistency score & progress bar
+          // Momentum row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 "TODAY'S MOMENTUM",
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
-                  color: isDark ? AppColors.textMuted : Colors.black54,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
                 ),
               ),
               Text(
-                '${(completionPct * 100).toInt()}% • $completedToday of ${scheduledToday.length} done',
+                '${(completionPct * 100).toInt()}% • $completedToday of $totalToday done',
                 style: const TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           ClipRRect(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: completionPct,
-              minHeight: 6,
-              backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+              minHeight: 4,
+              backgroundColor: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
               valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // View Switcher Bar
+          _buildViewSwitcherBar(context, isDark),
+        ],
+      ),
+    );
+  }
+
+  // Landscape Header: Ultra-compact single horizontal bar to maximize screen real estate
+  Widget _buildLandscapeHeader(
+    BuildContext context,
+    bool isDark,
+    double completionPct,
+    int completedToday,
+    int totalToday,
+    int maxStreak,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          // Logo & Brand
           Container(
-            padding: const EdgeInsets.all(3),
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkBg : const Color(0xFFE2E8F0),
-              borderRadius: BorderRadius.circular(10),
+              color: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.35), width: 0.8),
+            ),
+            child: const Center(
+              child: Icon(Icons.bolt_rounded, size: 16, color: AppColors.primary),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'TrackFlow',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.4,
+              color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // View Switcher in the center
+          Expanded(
+            child: _buildViewSwitcherBar(context, isDark),
+          ),
+          const SizedBox(width: 16),
+
+          // Streak Pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.streakAmber.withValues(alpha: 0.12)
+                  : const Color(0xFFFEF3C7),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppColors.streakAmber.withValues(alpha: 0.25),
+                width: 0.8,
+              ),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _buildTabButton(
-                  context,
-                  title: "Today's Flow",
-                  icon: Icons.view_agenda_outlined,
-                  isSelected: activeViewMode == ViewMode.flow,
-                  onTap: () => onViewModeChanged(ViewMode.flow),
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  size: 13,
+                  color: AppColors.streakAmber,
                 ),
-                _buildTabButton(
-                  context,
-                  title: '7-Day Matrix',
-                  icon: Icons.grid_view_rounded,
-                  isSelected: activeViewMode == ViewMode.matrix,
-                  onTap: () => onViewModeChanged(ViewMode.matrix),
-                ),
-                _buildTabButton(
-                  context,
-                  title: '365-Day Canvas',
-                  icon: Icons.calendar_view_month_rounded,
-                  isSelected: activeViewMode == ViewMode.heatmap,
-                  onTap: () => onViewModeChanged(ViewMode.heatmap),
+                const SizedBox(width: 4),
+                Text(
+                  '$maxStreak d',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.streakAmber : const Color(0xFFB45309),
+                  ),
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: 6),
+
+          // Backup & Settings
+          IconButton(
+            icon: const Icon(Icons.tune_rounded, size: 18),
+            color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            tooltip: 'Backup & Settings',
+            onPressed: onOpenBackupSheet,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewSwitcherBar(BuildContext context, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(2.5),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          _buildTabButton(
+            context,
+            title: "Today's Flow",
+            icon: Icons.view_agenda_outlined,
+            isSelected: activeViewMode == ViewMode.flow,
+            onTap: () => onViewModeChanged(ViewMode.flow),
+          ),
+          _buildTabButton(
+            context,
+            title: '7-Day Matrix',
+            icon: Icons.grid_view_rounded,
+            isSelected: activeViewMode == ViewMode.matrix,
+            onTap: () => onViewModeChanged(ViewMode.matrix),
+          ),
+          _buildTabButton(
+            context,
+            title: '365-Day Canvas',
+            icon: Icons.calendar_view_month_rounded,
+            isSelected: activeViewMode == ViewMode.heatmap,
+            onTap: () => onViewModeChanged(ViewMode.heatmap),
           ),
         ],
       ),
@@ -252,20 +349,17 @@ class ExecutiveSummaryHeader extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.symmetric(vertical: 5.5),
           decoration: BoxDecoration(
             color: isSelected
                 ? (isDark ? AppColors.darkCard : Colors.white)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    )
-                  ]
+            border: isSelected
+                ? Border.all(
+                    color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1),
+                    width: 0.8,
+                  )
                 : null,
           ),
           child: Row(
@@ -284,9 +378,9 @@ class ExecutiveSummaryHeader extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     color: isSelected
-                        ? (isDark ? Colors.white : AppColors.textDarkPrimary)
+                        ? (isDark ? AppColors.textPrimary : AppColors.textDarkPrimary)
                         : (isDark ? AppColors.textMuted : Colors.black54),
                   ),
                   maxLines: 1,

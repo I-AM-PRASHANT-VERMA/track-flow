@@ -9,7 +9,7 @@ import '../widgets/habit_card.dart';
 import '../widgets/multi_day_matrix_view.dart';
 import '../widgets/yearly_heatmap_canvas.dart';
 
-// Primary home screen for TrackFlow with time-of-day rituals, 7-day matrix, and 365-day canvas
+// Primary home screen for TrackFlow with responsive landscape/portrait support and Radix UI aesthetics
 class TrackFlowHomeScreen extends StatefulWidget {
   const TrackFlowHomeScreen({super.key});
 
@@ -118,15 +118,17 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final navInset = MediaQuery.of(context).viewPadding.bottom;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
       body: SafeArea(
+        bottom: false,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  // Top Executive Header
+                  // Top Executive Header (Adaptive Landscape/Portrait)
                   ExecutiveSummaryHeader(
                     habits: _habits,
                     activeViewMode: _viewMode,
@@ -137,23 +139,30 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
                   // Main View Content
                   Expanded(
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
+                      duration: const Duration(milliseconds: 200),
                       child: _buildCurrentView(),
                     ),
                   ),
                 ],
               ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.black,
-        elevation: 4,
-        icon: const Icon(Icons.add_rounded, size: 20, color: Colors.black),
-        label: const Text(
-          'New Habit',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.2),
+      // Safe FAB placement clear of Android navigation bar
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+          bottom: navInset > 0 ? (navInset + 8) : 16,
+          right: 4,
         ),
-        onPressed: () => _openAddSheet(),
+        child: FloatingActionButton.extended(
+          backgroundColor: AppColors.primary,
+          foregroundColor: const Color(0xFF0B0F17),
+          elevation: 3,
+          icon: const Icon(Icons.add_rounded, size: 20, color: Color(0xFF0B0F17)),
+          label: const Text(
+            'New Habit',
+            style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+          ),
+          onPressed: () => _openAddSheet(),
+        ),
       ),
     );
   }
@@ -181,17 +190,19 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
   // Flow View: Grouped by ritual times (Morning, Afternoon, Evening, Anytime)
   Widget _buildFlowList() {
     final active = _habits.where((h) => !h.isArchived).toList();
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final navInset = MediaQuery.of(context).viewPadding.bottom;
 
     if (active.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.flag_outlined, size: 48, color: AppColors.textMuted),
+            const Icon(Icons.flag_outlined, size: 44, color: AppColors.textMuted),
             const SizedBox(height: 12),
             const Text(
               'No habits tracked yet',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             const Text(
@@ -210,54 +221,82 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
 
     return ListView(
       key: const ValueKey('flow_view'),
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 80),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: 96 + navInset,
+      ),
       children: [
         if (morningHabits.isNotEmpty) ...[
-          _buildSectionHeader('MORNING RITUALS', '🌅', morningHabits.length, const Color(0xFFF59E0B)),
-          ...morningHabits.map(_buildHabitCard),
+          _buildSectionHeader('MORNING RITUALS', Icons.wb_twilight_rounded, morningHabits.length, const Color(0xFFF59E0B)),
+          _buildHabitsGroup(morningHabits, isLandscape),
           const SizedBox(height: 12),
         ],
         if (afternoonHabits.isNotEmpty) ...[
-          _buildSectionHeader('DEEP WORK & MASTERY', '☀️', afternoonHabits.length, const Color(0xFF38BDF8)),
-          ...afternoonHabits.map(_buildHabitCard),
+          _buildSectionHeader('DEEP WORK & MASTERY', Icons.wb_sunny_rounded, afternoonHabits.length, const Color(0xFF0EA5E9)),
+          _buildHabitsGroup(afternoonHabits, isLandscape),
           const SizedBox(height: 12),
         ],
         if (eveningHabits.isNotEmpty) ...[
-          _buildSectionHeader('EVENING WIND-DOWN', '🌙', eveningHabits.length, const Color(0xFFA855F7)),
-          ...eveningHabits.map(_buildHabitCard),
+          _buildSectionHeader('EVENING WIND-DOWN', Icons.nightlight_round, eveningHabits.length, const Color(0xFFA855F7)),
+          _buildHabitsGroup(eveningHabits, isLandscape),
           const SizedBox(height: 12),
         ],
         if (anytimeHabits.isNotEmpty) ...[
-          _buildSectionHeader('ANYTIME RITUALS', '⚡', anytimeHabits.length, AppColors.primary),
-          ...anytimeHabits.map(_buildHabitCard),
+          _buildSectionHeader('ANYTIME RITUALS', Icons.all_inclusive_rounded, anytimeHabits.length, AppColors.primary),
+          _buildHabitsGroup(anytimeHabits, isLandscape),
         ],
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title, String emoji, int count, Color color) {
+  // Multi-column responsive layout in Landscape, standard single column in Portrait
+  Widget _buildHabitsGroup(List<HabitItem> habits, bool isLandscape) {
+    if (isLandscape) {
+      final width = MediaQuery.of(context).size.width;
+      final cardWidth = (width - 44) / 2; // 2 balanced columns with padding
+
+      return Wrap(
+        spacing: 12,
+        runSpacing: 4,
+        children: habits.map((h) {
+          return SizedBox(
+            width: cardWidth,
+            child: _buildHabitCard(h),
+          );
+        }).toList(),
+      );
+    } else {
+      return Column(
+        children: habits.map(_buildHabitCard).toList(),
+      );
+    }
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon, int count, Color color) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, top: 4),
       child: Row(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 6),
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: 7),
           Text(
             title,
             style: TextStyle(
               fontSize: 10.5,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
               color: isDark ? AppColors.textMuted : Colors.black54,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 7),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+              color: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -265,7 +304,7 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
               style: TextStyle(
                 fontSize: 9.5,
                 fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white70 : Colors.black87,
+                color: isDark ? AppColors.textSecondary : Colors.black87,
               ),
             ),
           ),

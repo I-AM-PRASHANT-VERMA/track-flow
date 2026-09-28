@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
 import '../models/habit_item.dart';
 
-// Streamlined bottom sheet for adding or editing a habit with zero bloat
+// Streamlined bottom sheet for creating or editing habits with vector icon picker and Radix styling
 class AddEditHabitSheet extends StatefulWidget {
   final HabitItem? initialHabit;
   final ValueChanged<HabitItem> onSave;
@@ -38,8 +38,6 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     'Productivity',
   ];
 
-  final List<String> _popularIcons = ['💧', '🏃', '💻', '📚', '🧘', '📵', '🏋️', '🍎', '✍️', '⚡'];
-
   @override
   void initState() {
     super.initState();
@@ -48,7 +46,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     _targetController = TextEditingController(text: (h?.targetPerDay ?? 1).toString());
     _unitController = TextEditingController(text: h?.unit ?? 'times');
     _selectedCategory = h?.category ?? 'Health';
-    _selectedIcon = h?.iconCode ?? '💧';
+    _selectedIcon = h?.iconCode ?? 'water';
     _selectedColor = h?.colorValue ?? AppColors.habitPalettes.first.toARGB32();
     _selectedType = h?.type ?? HabitType.boolean;
     _selectedTimeOfDay = h?.timeOfDay ?? HabitTimeOfDay.morning;
@@ -93,17 +91,24 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEditing = widget.initialHabit != null;
+    final currentColor = Color(_selectedColor);
 
     return Container(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
-        top: 20,
+        top: 16,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+            width: 1,
+          ),
+        ),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -121,15 +126,16 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Sheet Title
             Text(
               isEditing ? 'Edit Habit / Ritual' : 'New Habit / Ritual',
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : AppColors.textDarkPrimary,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -137,14 +143,37 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
             // Icon & Title Row
             Row(
               children: [
-                // Icon Picker Trigger
+                // Vector Icon Picker Trigger
                 PopupMenuButton<String>(
                   initialValue: _selectedIcon,
                   tooltip: 'Select Icon',
-                  itemBuilder: (context) => _popularIcons.map((ico) {
-                    return PopupMenuItem(
-                      value: ico,
-                      child: Text(ico, style: const TextStyle(fontSize: 20)),
+                  color: isDark ? AppColors.darkCard : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+                    ),
+                  ),
+                  itemBuilder: (context) => AppIcons.availableIcons.map((item) {
+                    final key = item['key'] as String;
+                    final label = item['label'] as String;
+                    final icon = item['icon'] as IconData;
+                    return PopupMenuItem<String>(
+                      value: key,
+                      child: Row(
+                        children: [
+                          Icon(icon, size: 18, color: currentColor),
+                          const SizedBox(width: 10),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }).toList(),
                   onSelected: (ico) => setState(() => _selectedIcon = ico),
@@ -152,15 +181,19 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Color(_selectedColor).withValues(alpha: isDark ? 0.2 : 0.12),
+                      color: currentColor.withValues(alpha: isDark ? 0.14 : 0.09),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Color(_selectedColor).withValues(alpha: 0.5),
-                        width: 1.2,
+                        color: currentColor.withValues(alpha: 0.35),
+                        width: 1.0,
                       ),
                     ),
                     child: Center(
-                      child: Text(_selectedIcon, style: const TextStyle(fontSize: 22)),
+                      child: Icon(
+                        AppIcons.getIcon(_selectedIcon),
+                        size: 22,
+                        color: currentColor,
+                      ),
                     ),
                   ),
                 ),
@@ -172,16 +205,17 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                     controller: _titleController,
                     textCapitalization: TextCapitalization.sentences,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : AppColors.textDarkPrimary,
+                      color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                     ),
                     decoration: InputDecoration(
                       labelText: 'Habit Title',
+                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                       hintText: 'e.g. Read 20 pages, Hydration',
-                      hintStyle: TextStyle(color: isDark ? AppColors.textMuted : Colors.black38),
+                      hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9),
+                      fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -217,26 +251,26 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedCategory = cat),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.15)
-                              : (isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9)),
+                              ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
+                              : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
-                                ? AppColors.primary
+                                ? AppColors.primary.withValues(alpha: 0.4)
                                 : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-                            width: isSelected ? 1.2 : 0.8,
+                            width: 0.9,
                           ),
                         ),
                         child: Text(
                           cat,
                           style: TextStyle(
-                            fontSize: 10.5,
+                            fontSize: 11,
                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                             color: isSelected
-                                ? (isDark ? Colors.white : AppColors.primary)
+                                ? (isDark ? AppColors.textPrimary : AppColors.primary)
                                 : (isDark ? AppColors.textMuted : Colors.black54),
                           ),
                         ),
@@ -249,39 +283,39 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
 
             const SizedBox(height: 16),
 
-            // Time of Day Selector (Morning, Afternoon, Evening, Anytime)
-            Text(
+            // Time of Day Selector with Vector Icons
+            const Text(
               'RITUAL TIME OF DAY',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-                color: isDark ? AppColors.textMuted : Colors.black54,
+                letterSpacing: 0.6,
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: 6),
             Row(
               children: [
-                _buildTimeChip(HabitTimeOfDay.morning, 'Morning 🌅'),
+                _buildTimeChip(HabitTimeOfDay.morning, 'Morning', Icons.wb_twilight_rounded),
                 const SizedBox(width: 6),
-                _buildTimeChip(HabitTimeOfDay.afternoon, 'Afternoon ☀️'),
+                _buildTimeChip(HabitTimeOfDay.afternoon, 'Afternoon', Icons.wb_sunny_rounded),
                 const SizedBox(width: 6),
-                _buildTimeChip(HabitTimeOfDay.evening, 'Evening 🌙'),
+                _buildTimeChip(HabitTimeOfDay.evening, 'Evening', Icons.nightlight_round),
                 const SizedBox(width: 6),
-                _buildTimeChip(HabitTimeOfDay.anytime, 'Anytime ⚡'),
+                _buildTimeChip(HabitTimeOfDay.anytime, 'Anytime', Icons.all_inclusive_rounded),
               ],
             ),
 
             const SizedBox(height: 16),
 
-            // Tracking Type: Boolean (Yes/No) vs Measurable (Countable)
-            Text(
+            // Tracking Type
+            const Text(
               'TRACKING TYPE',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-                color: isDark ? AppColors.textMuted : Colors.black54,
+                letterSpacing: 0.6,
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: 6),
@@ -294,7 +328,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                     icon: Icons.check_circle_outline_rounded,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildTypeButton(
                     type: HabitType.measurable,
@@ -314,15 +348,16 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                       controller: _targetController,
                       keyboardType: TextInputType.number,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: isDark ? AppColors.textPrimary : Colors.black87,
                       ),
                       decoration: InputDecoration(
                         labelText: 'Daily Target',
+                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                         hintText: 'e.g. 8, 20, 90',
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9),
+                        fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       ),
@@ -333,15 +368,16 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                     child: TextField(
                       controller: _unitController,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: isDark ? AppColors.textPrimary : Colors.black87,
                       ),
                       decoration: InputDecoration(
                         labelText: 'Unit Label',
+                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                         hintText: 'glasses, pages, mins',
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9),
+                        fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       ),
@@ -353,14 +389,14 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
 
             const SizedBox(height: 16),
 
-            // Color Palette Selector
-            Text(
-              'ACCENT COLOR GLOW',
+            // Color Palette Selector (Radix / Tailwind 8-Scale)
+            const Text(
+              'ACCENT COLOR',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-                color: isDark ? AppColors.textMuted : Colors.black54,
+                letterSpacing: 0.6,
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: 8),
@@ -378,12 +414,12 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected ? Colors.white : Colors.transparent,
-                        width: 2.2,
+                        width: 2.0,
                       ),
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: c.withValues(alpha: 0.5),
+                                color: c.withValues(alpha: 0.4),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               )
@@ -404,15 +440,15 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                foregroundColor: const Color(0xFF0B0F17),
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
               onPressed: _handleSubmit,
               child: Text(
                 isEditing ? 'Save Changes' : 'Create Habit',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
               ),
             ),
           ],
@@ -421,7 +457,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     );
   }
 
-  Widget _buildTimeChip(HabitTimeOfDay time, String label) {
+  Widget _buildTimeChip(HabitTimeOfDay time, String label, IconData icon) {
     final isSelected = _selectedTimeOfDay == time;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -429,30 +465,38 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
       child: GestureDetector(
         onTap: () => setState(() => _selectedTimeOfDay = time),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 7),
+          padding: const EdgeInsets.symmetric(vertical: 6.5),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.15)
-                : (isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9)),
+                ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
+                : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected
-                  ? AppColors.primary
+                  ? AppColors.primary.withValues(alpha: 0.4)
                   : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-              width: isSelected ? 1.2 : 0.8,
+              width: 0.9,
             ),
           ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected
-                    ? (isDark ? Colors.white : AppColors.primary)
-                    : (isDark ? AppColors.textMuted : Colors.black54),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 13,
+                color: isSelected ? AppColors.primary : AppColors.textMuted,
               ),
-            ),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected
+                      ? (isDark ? AppColors.textPrimary : AppColors.primary)
+                      : (isDark ? AppColors.textMuted : Colors.black54),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -470,17 +514,17 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     return GestureDetector(
       onTap: () => setState(() => _selectedType = type),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.15)
-              : (isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9)),
+              ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
+              : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected
-                ? AppColors.primary
+                ? AppColors.primary.withValues(alpha: 0.4)
                 : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-            width: isSelected ? 1.2 : 0.8,
+            width: 0.9,
           ),
         ),
         child: Row(
@@ -488,7 +532,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
           children: [
             Icon(
               icon,
-              size: 16,
+              size: 15,
               color: isSelected ? AppColors.primary : AppColors.textMuted,
             ),
             const SizedBox(width: 6),
@@ -496,10 +540,10 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 11.5,
+                  fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   color: isSelected
-                      ? (isDark ? Colors.white : AppColors.primary)
+                      ? (isDark ? AppColors.textPrimary : AppColors.primary)
                       : (isDark ? AppColors.textMuted : Colors.black87),
                 ),
                 maxLines: 1,

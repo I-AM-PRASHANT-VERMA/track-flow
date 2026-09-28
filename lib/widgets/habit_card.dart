@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
 import '../models/habit_item.dart';
 
-// High-density habit card with inline 7-day history matrix and zero-modal stepper
+// High-density habit card tuned with Radix UI color math and crisp vector iconography
 class HabitCard extends StatelessWidget {
   final HabitItem habit;
   final ValueChanged<int> onUpdateTodayProgress;
@@ -35,22 +35,16 @@ class HabitCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDoneToday
-              ? habitColor.withValues(alpha: isDark ? 0.45 : 0.6)
+              ? habitColor.withValues(alpha: isDark ? 0.35 : 0.45)
               : (isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
-          width: isDoneToday ? 1.4 : 1.0,
+          width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          if (isDoneToday)
-            BoxShadow(
-              color: habitColor.withValues(alpha: isDark ? 0.12 : 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
-            ),
         ],
       ),
       child: Material(
@@ -63,26 +57,27 @@ class HabitCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Top Row: Icon, Title, Category Tag, Streak pill, and Context Menu
+                // Top Row: Vector Icon, Title, Category Tag, Streak pill, and Context Menu
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Icon Box
+                    // Crisp Vector Icon Box
                     Container(
-                      width: 34,
-                      height: 34,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color: habitColor.withValues(alpha: isDark ? 0.18 : 0.12),
+                        color: habitColor.withValues(alpha: isDark ? 0.12 : 0.08),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: habitColor.withValues(alpha: 0.35),
-                          width: 0.8,
+                          color: habitColor.withValues(alpha: 0.25),
+                          width: 0.9,
                         ),
                       ),
                       child: Center(
-                        child: Text(
-                          habit.iconCode,
-                          style: const TextStyle(fontSize: 18),
+                        child: Icon(
+                          AppIcons.getIcon(habit.iconCode),
+                          size: 19,
+                          color: habitColor,
                         ),
                       ),
                     ),
@@ -97,62 +92,58 @@ class HabitCard extends StatelessWidget {
                             habit.title,
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : AppColors.textDarkPrimary,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
+                              color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Text(
-                                habit.type == HabitType.measurable
-                                    ? 'Target: ${habit.targetPerDay} ${habit.unit}'
-                                    : habit.category,
-                                style: TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: habitColor,
-                                ),
-                              ),
-                              if (habit.type == HabitType.measurable) ...[
-                                Text(
-                                  ' • ${habit.category}',
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    color: isDark ? AppColors.textMuted : Colors.black45,
-                                  ),
-                                ),
-                              ],
-                            ],
+                          Text(
+                            habit.type == HabitType.measurable
+                                ? 'Target: ${habit.targetPerDay} ${habit.unit} • ${habit.category}'
+                                : habit.category,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: habitColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
 
-                    // Streak Pill
+                    // Modern Streak Pill with Vector Flame
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1B2333) : const Color(0xFFFEF3C7),
+                        color: isDark
+                            ? AppColors.streakAmber.withValues(alpha: 0.10)
+                            : const Color(0xFFFEF3C7),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppColors.streakOrange.withValues(alpha: 0.35),
+                          color: AppColors.streakAmber.withValues(alpha: 0.25),
                           width: 0.8,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('🔥', style: TextStyle(fontSize: 10)),
+                          const Icon(
+                            Icons.local_fire_department_rounded,
+                            size: 13,
+                            color: AppColors.streakAmber,
+                          ),
                           const SizedBox(width: 3),
                           Text(
                             '${habit.currentStreak}d',
                             style: TextStyle(
-                              fontSize: 10.5,
+                              fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? AppColors.streakOrange : const Color(0xFFB45309),
+                              color: isDark ? AppColors.streakAmber : const Color(0xFFB45309),
                             ),
                           ),
                         ],
@@ -179,9 +170,9 @@ class HabitCard extends StatelessWidget {
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete_outline_rounded, size: 15, color: Colors.redAccent),
+                              Icon(Icons.delete_outline_rounded, size: 15, color: AppColors.danger),
                               SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(fontSize: 12, color: Colors.redAccent)),
+                              Text('Delete', style: TextStyle(fontSize: 12, color: AppColors.danger)),
                             ],
                           ),
                         ),
@@ -225,7 +216,7 @@ class HabitCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF090E17) : const Color(0xFFF1F5F9),
+        color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0),
@@ -235,13 +226,13 @@ class HabitCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          const Text(
             '7-DAY',
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,
-              color: isDark ? AppColors.textMuted : Colors.black45,
+              color: AppColors.textMuted,
             ),
           ),
           Row(
@@ -262,22 +253,22 @@ class HabitCard extends StatelessWidget {
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                  width: 22,
-                  height: 22,
+                  width: 24,
+                  height: 24,
                   decoration: BoxDecoration(
                     color: !isScheduled
                         ? Colors.transparent
                         : (isDone
-                            ? habitColor
-                            : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
+                            ? habitColor.withValues(alpha: isDark ? 0.35 : 0.85)
+                            : (isDark ? AppColors.darkCardBorder.withValues(alpha: 0.5) : const Color(0xFFE2E8F0))),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isToday
                           ? habitColor
                           : (!isScheduled
-                              ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1))
-                              : Colors.transparent),
-                      width: isToday ? 1.5 : 0.8,
+                              ? (isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1))
+                              : (isDone ? habitColor.withValues(alpha: 0.5) : Colors.transparent)),
+                      width: isToday ? 1.4 : 0.8,
                     ),
                   ),
                   child: Center(
@@ -289,7 +280,7 @@ class HabitCard extends StatelessWidget {
                         color: !isScheduled
                             ? (isDark ? Colors.white24 : Colors.black26)
                             : (isDone
-                                ? Colors.black
+                                ? (isDark ? AppColors.textPrimary : Colors.white)
                                 : (isDark ? AppColors.textMuted : Colors.black54)),
                       ),
                     ),
@@ -310,7 +301,6 @@ class HabitCard extends StatelessWidget {
     final progressRatio = (current / target).clamp(0.0, 1.0);
     final isDone = current >= target;
 
-    // Step size based on target size
     final step = target > 50 ? 15 : (target > 10 ? 5 : 1);
 
     return Column(
@@ -321,16 +311,16 @@ class HabitCard extends StatelessWidget {
             Text.rich(
               TextSpan(
                 text: 'Today: ',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.textMuted : Colors.black54,
+                  color: AppColors.textSecondary,
                 ),
                 children: [
                   TextSpan(
                     text: '$current',
                     style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: isDone ? habitColor : (isDark ? Colors.white : AppColors.textDarkPrimary),
+                      fontWeight: FontWeight.w800,
+                      color: isDone ? habitColor : (isDark ? AppColors.textPrimary : AppColors.textDarkPrimary),
                     ),
                   ),
                   TextSpan(text: ' / $target ${habit.unit}'),
@@ -348,7 +338,7 @@ class HabitCard extends StatelessWidget {
                     onUpdateTodayProgress(next);
                   },
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 5),
                 _buildStepperButton(
                   context,
                   label: '+$step',
@@ -364,13 +354,13 @@ class HabitCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: progressRatio,
             minHeight: 4,
-            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            backgroundColor: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
             valueColor: AlwaysStoppedAnimation<Color>(habitColor),
           ),
         ),
@@ -393,19 +383,27 @@ class HabitCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
           decoration: BoxDecoration(
             color: isAccent
-                ? (accentColor ?? AppColors.primary)
-                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                ? (accentColor ?? AppColors.primary).withValues(alpha: 0.16)
+                : (isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isAccent
+                  ? (accentColor ?? AppColors.primary).withValues(alpha: 0.4)
+                  : (isDark ? AppColors.darkCardBorder : Colors.transparent),
+              width: 0.8,
+            ),
           ),
           child: Text(
             label,
             style: TextStyle(
               fontSize: 11,
-              fontWeight: FontWeight.w900,
-              color: isAccent ? Colors.black : (isDark ? Colors.white : Colors.black87),
+              fontWeight: FontWeight.w800,
+              color: isAccent
+                  ? (accentColor ?? AppColors.primary)
+                  : (isDark ? AppColors.textPrimary : Colors.black87),
             ),
           ),
         ),
@@ -413,7 +411,7 @@ class HabitCard extends StatelessWidget {
     );
   }
 
-  // 1-Tap Toggle Button for Boolean Habits
+  // Elegant 1-Tap Toggle Button for Boolean Habits (Soothing Radix tint instead of loud solid green)
   Widget _buildBooleanToggle(BuildContext context, Color habitColor, bool isDone) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -423,22 +421,22 @@ class HabitCard extends StatelessWidget {
           HapticFeedback.lightImpact();
           onUpdateTodayProgress(0);
         } else {
-          HapticFeedback.heavyImpact();
+          HapticFeedback.mediumImpact();
           onUpdateTodayProgress(habit.targetPerDay);
         }
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8.5),
         decoration: BoxDecoration(
           color: isDone
-              ? habitColor
-              : (isDark ? const Color(0xFF131D2E) : const Color(0xFFF1F5F9)),
+              ? habitColor.withValues(alpha: isDark ? 0.14 : 0.10)
+              : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isDone
-                ? habitColor
+                ? habitColor.withValues(alpha: 0.35)
                 : (isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1)),
             width: 1.0,
           ),
@@ -449,15 +447,17 @@ class HabitCard extends StatelessWidget {
             Icon(
               isDone ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
               size: 15,
-              color: isDone ? Colors.black : (isDark ? AppColors.textMuted : Colors.black45),
+              color: isDone ? habitColor : AppColors.textMuted,
             ),
             const SizedBox(width: 6),
             Text(
-              isDone ? 'Completed Today' : 'Tap to Mark Done',
+              isDone ? 'Completed Today' : 'Tap to Complete',
               style: TextStyle(
                 fontSize: 11.5,
-                fontWeight: FontWeight.w800,
-                color: isDone ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                fontWeight: FontWeight.w700,
+                color: isDone
+                    ? (isDark ? AppColors.textPrimary : habitColor)
+                    : (isDark ? AppColors.textSecondary : Colors.black87),
               ),
             ),
           ],

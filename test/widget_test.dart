@@ -10,9 +10,9 @@ void main() {
     await tester.pumpWidget(const TrackFlowApp());
     await tester.pumpAndSettle();
 
-    // Verify Brand title and Offline Pro badge
+    // Verify Brand title
     expect(find.text('TrackFlow'), findsOneWidget);
-    expect(find.text('OFFLINE PRO'), findsOneWidget);
+    expect(find.text("Today's Flow"), findsOneWidget);
 
     // Verify starter habits are displayed in Today's Flow
     expect(find.text('Hydration Goal'), findsOneWidget);
