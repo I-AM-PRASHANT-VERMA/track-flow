@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/constants/app_colors.dart';
+import 'core/services/habit_storage.dart';
 import 'screens/track_flow_home_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Edge-to-edge system chrome styling
@@ -15,6 +16,9 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
+
+  // Pre-warm local storage cache during engine bootstrap
+  await HabitStorage.init();
 
   runApp(const TrackFlowApp());
 }

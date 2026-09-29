@@ -130,11 +130,13 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
             : Column(
                 children: [
                   // Top Executive Header (Adaptive Landscape/Portrait)
-                  ExecutiveSummaryHeader(
-                    habits: _habits,
-                    activeViewMode: _viewMode,
-                    onViewModeChanged: (mode) => setState(() => _viewMode = mode),
-                    onOpenBackupSheet: _openBackupSheet,
+                  RepaintBoundary(
+                    child: ExecutiveSummaryHeader(
+                      habits: _habits,
+                      activeViewMode: _viewMode,
+                      onViewModeChanged: (mode) => setState(() => _viewMode = mode),
+                      onOpenBackupSheet: _openBackupSheet,
+                    ),
                   ),
 
                   // Main View Content
@@ -171,17 +173,23 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
   Widget _buildCurrentView() {
     switch (_viewMode) {
       case ViewMode.matrix:
-        return MultiDayMatrixView(
-          key: const ValueKey('matrix_view'),
-          habits: _habits,
-          onToggleCell: (habit, date, count) => _toggleHistoricalDate(habit, date, count),
+        return RepaintBoundary(
+          key: const ValueKey('matrix_boundary'),
+          child: MultiDayMatrixView(
+            key: const ValueKey('matrix_view'),
+            habits: _habits,
+            onToggleCell: (habit, date, count) => _toggleHistoricalDate(habit, date, count),
+          ),
         );
       case ViewMode.heatmap:
-        return YearlyHeatmapCanvas(
-          key: const ValueKey('heatmap_view'),
-          habits: _habits,
-          selectedHabitFilter: _heatmapFilter,
-          onFilterChanged: (filter) => setState(() => _heatmapFilter = filter),
+        return RepaintBoundary(
+          key: const ValueKey('heatmap_boundary'),
+          child: YearlyHeatmapCanvas(
+            key: const ValueKey('heatmap_view'),
+            habits: _habits,
+            selectedHabitFilter: _heatmapFilter,
+            onFilterChanged: (filter) => setState(() => _heatmapFilter = filter),
+          ),
         );
       case ViewMode.flow:
         return _buildFlowList();
@@ -315,13 +323,16 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
   }
 
   Widget _buildHabitCard(HabitItem habit) {
-    return HabitCard(
-      key: ValueKey(habit.id),
-      habit: habit,
-      onUpdateTodayProgress: (val) => _updateTodayProgress(habit, val),
-      onToggleHistoricalDate: (dt, val) => _toggleHistoricalDate(habit, dt, val),
-      onEdit: () => _openAddSheet(habit),
-      onDelete: () => _deleteHabit(habit),
+    return RepaintBoundary(
+      key: ValueKey('boundary_${habit.id}'),
+      child: HabitCard(
+        key: ValueKey(habit.id),
+        habit: habit,
+        onUpdateTodayProgress: (val) => _updateTodayProgress(habit, val),
+        onToggleHistoricalDate: (dt, val) => _toggleHistoricalDate(habit, dt, val),
+        onEdit: () => _openAddSheet(habit),
+        onDelete: () => _deleteHabit(habit),
+      ),
     );
   }
 }

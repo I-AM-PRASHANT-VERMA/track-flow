@@ -5,29 +5,53 @@ import '../../models/habit_item.dart';
 // Local offline persistence for habits and daily check-in records
 class HabitStorage {
   static const String _keyHabits = 'track_flow_habits_v1';
+  static SharedPreferences? _prefs;
+  static List<HabitItem>? _cachedHabits;
 
-  // Loads all stored habits, seeding with sample templates on first run
+  // Pre-warms cache during application bootstrap for zero cold-start latency
+  static Future<void> init() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    if (_cachedHabits == null) {
+      await loadHabits();
+    }
+  }
+
+  static Future<SharedPreferences> _getPrefs() async {
+    return _prefs ??= await SharedPreferences.getInstance();
+  }
+
+  // Loads all stored habits, utilizing memory cache when available
   static Future<List<HabitItem>> loadHabits() async {
-    final prefs = await SharedPreferences.getInstance();
+    if (_cachedHabits != null) {
+      return List<HabitItem>.from(_cachedHabits!);
+    }
+
+    final prefs = await _getPrefs();
     final rawJson = prefs.getString(_keyHabits);
 
     if (rawJson == null || rawJson.isEmpty) {
       final initial = _getDefaultStarterHabits();
       await saveHabits(initial);
+      _cachedHabits = initial;
       return initial;
     }
 
     try {
       final List<dynamic> decoded = jsonDecode(rawJson);
-      return decoded.map((h) => HabitItem.fromJson(h as Map<String, dynamic>)).toList();
+      final list = decoded.map((h) => HabitItem.fromJson(h as Map<String, dynamic>)).toList();
+      _cachedHabits = list;
+      return list;
     } catch (e) {
-      return _getDefaultStarterHabits();
+      final fallback = _getDefaultStarterHabits();
+      _cachedHabits = fallback;
+      return fallback;
     }
   }
 
-  // Saves updated habits list
+  // Saves updated habits list to memory cache immediately and persists to disk
   static Future<void> saveHabits(List<HabitItem> habits) async {
-    final prefs = await SharedPreferences.getInstance();
+    _cachedHabits = List<HabitItem>.from(habits);
+    final prefs = await _getPrefs();
     final encoded = jsonEncode(habits.map((h) => h.toJson()).toList());
     await prefs.setString(_keyHabits, encoded);
   }
@@ -189,7 +213,7 @@ class HabitStorage {
 
   // Loads cloud sync preference state
   static Future<Map<String, dynamic>> loadCloudSyncSettings() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     return {
       'isConnected': prefs.getBool(_keyCloudSyncConnected) ?? false,
       'email': prefs.getString(_keyCloudSyncEmail) ?? '',
@@ -205,7 +229,7 @@ class HabitStorage {
     required String cadence,
     String? lastSynced,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     await prefs.setBool(_keyCloudSyncConnected, isConnected);
     await prefs.setString(_keyCloudSyncEmail, email);
     await prefs.setString(_keyCloudSyncCadence, cadence);
@@ -217,7 +241,7 @@ class HabitStorage {
   // Performs sync operation and timestamps the event
   static Future<String> triggerCloudSync() async {
     final nowIso = DateTime.now().toIso8601String();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     await prefs.setString(_keyCloudSyncLastTime, nowIso);
     return nowIso;
   }

@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 enum HabitType { boolean, measurable }
 
 enum HabitTimeOfDay { morning, afternoon, evening, anytime }
@@ -38,9 +36,14 @@ class HabitItem {
         logs = logs ?? const {},
         createdAt = createdAt ?? DateTime.now();
 
-  // Helper date key formatter
+  // Fast zero-allocation date key formatter avoiding DateFormat locale overhead
   static String dateKey(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
+    final y = date.year;
+    final m = date.month;
+    final d = date.day;
+    final mStr = m < 10 ? '0$m' : '$m';
+    final dStr = d < 10 ? '0$d' : '$d';
+    return '$y-$mStr-$dStr';
   }
 
   // Value logged on a specific date
@@ -57,8 +60,16 @@ class HabitItem {
   int get progressToday => progressOn(DateTime.now());
   bool get isCompletedToday => isCompletedOn(DateTime.now());
 
-  // Calculates current active unbroken streak
-  int get currentStreak {
+  // Cached active unbroken streak calculated once per immutable instance
+  late final int currentStreak = _calculateCurrentStreak();
+
+  // Cached historical best streak calculated once per immutable instance
+  late final int bestStreak = _calculateBestStreak();
+
+  // Cached completion rate percentage over last 30 scheduled days
+  late final double completionRateLast30Days = _calculateCompletionRateLast30Days();
+
+  int _calculateCurrentStreak() {
     final now = DateTime.now();
     var checkDate = DateTime(now.year, now.month, now.day);
     var streak = 0;
@@ -102,8 +113,7 @@ class HabitItem {
     return streak;
   }
 
-  // Computes historical best streak
-  int get bestStreak {
+  int _calculateBestStreak() {
     if (logs.isEmpty) return currentStreak;
 
     final sortedKeys = logs.keys.toList()..sort();
@@ -135,8 +145,7 @@ class HabitItem {
     return curr > best ? curr : best;
   }
 
-  // Completion rate percentage over last 30 scheduled days
-  double get completionRateLast30Days {
+  double _calculateCompletionRateLast30Days() {
     final now = DateTime.now();
     var completedCount = 0;
     var scheduledCount = 0;

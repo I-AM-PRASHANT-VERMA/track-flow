@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_spacing.dart';
 import '../models/habit_item.dart';
@@ -248,7 +247,8 @@ class HabitCard extends StatelessWidget {
               final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
               final isDone = habit.isCompletedOn(date);
               final isScheduled = habit.scheduledDays.contains(date.weekday);
-              final dayChar = DateFormat('E').format(date).substring(0, 1);
+              const weekdayLetters = ['', 'M', 'T', 'W', 'T', 'F', 'S', 'S'];
+              final dayChar = weekdayLetters[date.weekday];
 
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,

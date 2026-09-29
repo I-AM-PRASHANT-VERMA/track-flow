@@ -214,13 +214,14 @@ class _MultiDayMatrixViewState extends State<MultiDayMatrixView> {
                             final isToday = dt.year == today.year &&
                                 dt.month == today.month &&
                                 dt.day == today.day;
+                            const weekdayLetters = ['', 'M', 'T', 'W', 'T', 'F', 'S', 'S'];
                             return SizedBox(
                               width: dayColWidth,
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    DateFormat('E').format(dt).substring(0, 1).toUpperCase(),
+                                    weekdayLetters[dt.weekday],
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w800,
@@ -231,7 +232,7 @@ class _MultiDayMatrixViewState extends State<MultiDayMatrixView> {
                                   ),
                                   const SizedBox(height: 1),
                                   Text(
-                                    DateFormat('d').format(dt),
+                                    '${dt.day}',
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: isToday ? FontWeight.w900 : FontWeight.w600,

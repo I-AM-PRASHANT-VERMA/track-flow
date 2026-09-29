@@ -147,13 +147,15 @@ class _YearlyHeatmapCanvasState extends State<YearlyHeatmapCanvas> {
                   reverse: true, // Auto-scroll to current week on right
                   child: GestureDetector(
                     onTapUp: (details) => _handleCanvasTap(details.localPosition, activeHabits),
-                    child: CustomPaint(
-                      size: const Size(53 * 13.0, 16 + (7 * 13.0)),
-                      painter: _HeatmapPainter(
-                        habits: widget.habits,
-                        selectedHabit: widget.selectedHabitFilter,
-                        isDark: isDark,
-                        selectedDate: _selectedDate,
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        size: const Size(53 * 13.0, 16 + (7 * 13.0)),
+                        painter: _HeatmapPainter(
+                          habits: widget.habits,
+                          selectedHabit: widget.selectedHabitFilter,
+                          isDark: isDark,
+                          selectedDate: _selectedDate,
+                        ),
                       ),
                     ),
                   ),
@@ -631,20 +633,27 @@ class _HeatmapPainter extends CustomPainter {
     required this.selectedDate,
   });
 
+  static const _monthAbbr = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
   @override
   void paint(Canvas canvas, Size size) {
     const cellSize = 11.0;
     const cellGap = 2.0;
     const stride = cellSize + cellGap;
 
+    final emptyColor = isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0);
     final emptyPaint = Paint()
-      ..color = isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0)
+      ..color = emptyColor
       ..style = PaintingStyle.fill;
+
+    final cellPaint = Paint()..style = PaintingStyle.fill;
+    final ringPaint = Paint()
+      ..color = isDark ? Colors.white : Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-
-    final monthFormat = DateFormat('MMM');
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     var lastRenderedMonth = -1;
@@ -656,7 +665,7 @@ class _HeatmapPainter extends CustomPainter {
       if (weekStartDate.month != lastRenderedMonth && weekStartDate.day <= 14) {
         lastRenderedMonth = weekStartDate.month;
         textPainter.text = TextSpan(
-          text: monthFormat.format(weekStartDate).toUpperCase(),
+          text: _monthAbbr[weekStartDate.month],
           style: TextStyle(
             fontSize: 8.5,
             fontWeight: FontWeight.w800,
@@ -683,40 +692,42 @@ class _HeatmapPainter extends CustomPainter {
           const Radius.circular(2.5),
         );
 
-        Paint cellPaint;
-
         if (selectedHabit != null) {
           final isDone = selectedHabit!.isCompletedOn(date);
-          final habitColor = AppColors.getHabitColor(selectedHabit!.colorValue);
-          cellPaint = Paint()
-            ..color = isDone ? habitColor.withValues(alpha: isDark ? 0.8 : 0.9) : emptyPaint.color
-            ..style = PaintingStyle.fill;
-        } else {
-          final scheduled = habits.where((h) => h.scheduledDays.contains(date.weekday)).toList();
-          if (scheduled.isEmpty) {
-            cellPaint = emptyPaint;
+          if (isDone) {
+            final habitColor = AppColors.getHabitColor(selectedHabit!.colorValue);
+            cellPaint.color = habitColor.withValues(alpha: isDark ? 0.8 : 0.9);
+            canvas.drawRRect(rect, cellPaint);
           } else {
-            final completedCount = scheduled.where((h) => h.isCompletedOn(date)).length;
-            final ratio = completedCount / scheduled.length;
+            canvas.drawRRect(rect, emptyPaint);
+          }
+        } else {
+          int scheduledCount = 0;
+          int completedCount = 0;
+          final weekday = date.weekday;
+          final len = habits.length;
 
-            if (ratio == 0) {
-              cellPaint = emptyPaint;
-            } else {
-              final alpha = (0.25 + (ratio * 0.70)).clamp(0.0, 0.95);
-              cellPaint = Paint()
-                ..color = AppColors.primary.withValues(alpha: alpha)
-                ..style = PaintingStyle.fill;
+          for (var i = 0; i < len; i++) {
+            final h = habits[i];
+            if (h.scheduledDays.contains(weekday)) {
+              scheduledCount++;
+              if (h.isCompletedOn(date)) {
+                completedCount++;
+              }
             }
+          }
+
+          if (scheduledCount == 0 || completedCount == 0) {
+            canvas.drawRRect(rect, emptyPaint);
+          } else {
+            final ratio = completedCount / scheduledCount;
+            final alpha = (0.25 + (ratio * 0.70)).clamp(0.0, 0.95);
+            cellPaint.color = AppColors.primary.withValues(alpha: alpha);
+            canvas.drawRRect(rect, cellPaint);
           }
         }
 
-        canvas.drawRRect(rect, cellPaint);
-
         if (isSelected) {
-          final ringPaint = Paint()
-            ..color = isDark ? Colors.white : Colors.black
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.2;
           canvas.drawRRect(rect, ringPaint);
         }
       }
