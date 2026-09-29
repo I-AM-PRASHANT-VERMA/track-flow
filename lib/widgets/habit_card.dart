@@ -48,14 +48,12 @@ class HabitCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onLongPress: onEdit,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.p16),
-            child: Column(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.p16),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Top Row: Vector Icon, Title, Category Tag, Streak pill, and Context Menu
@@ -151,18 +149,15 @@ class HabitCard extends StatelessWidget {
                       ),
                     ),
 
-                    // 48x48 Touch Target for Options Menu
-                    TouchTarget(
-                      minWidth: AppSpacing.minTouchTarget,
-                      minHeight: AppSpacing.minTouchTarget,
-                      child: PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert_rounded, size: 18, color: AppColors.textMuted),
-                        padding: EdgeInsets.zero,
-                        color: isDark ? AppColors.darkCard : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
-                        ),
+                    // Options Menu
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert_rounded, size: 18, color: AppColors.textMuted),
+                      padding: EdgeInsets.zero,
+                      color: isDark ? AppColors.darkCard : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder),
+                      ),
                         itemBuilder: (context) => [
                           PopupMenuItem(
                             value: 'edit',
@@ -196,8 +191,7 @@ class HabitCard extends StatelessWidget {
                           if (val == 'delete') onDelete();
                         },
                       ),
-                    ),
-                  ],
+                    ],
                 ),
 
                 const SizedBox(height: AppSpacing.p12),
@@ -217,9 +211,8 @@ class HabitCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
   // 7-day mini matrix with guaranteed 44-48dp touch targets per day cell
   Widget _build7DayMatrix(BuildContext context, Color habitColor) {
@@ -257,10 +250,8 @@ class HabitCard extends StatelessWidget {
               final isScheduled = habit.scheduledDays.contains(date.weekday);
               final dayChar = DateFormat('E').format(date).substring(0, 1);
 
-              return TouchTarget(
-                minWidth: 38,
-                minHeight: 44, // Meets touch target guidelines
-                borderRadius: BorderRadius.circular(8),
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () {
                   HapticFeedback.lightImpact();
                   if (habit.type == HabitType.boolean) {
@@ -269,9 +260,11 @@ class HabitCard extends StatelessWidget {
                     onToggleHistoricalDate(date, isDone ? 0 : habit.targetPerDay);
                   }
                 },
-                child: Container(
-                  width: 26,
-                  height: 26,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+                  child: Container(
+                    width: 28,
+                    height: 28,
                   decoration: BoxDecoration(
                     color: !isScheduled
                         ? Colors.transparent
@@ -303,8 +296,9 @@ class HabitCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              );
-            }).toList(),
+              ),
+            );
+          }).toList(),
           ),
         ],
       ),
@@ -400,13 +394,11 @@ class HabitCard extends StatelessWidget {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return TouchTarget(
-      minWidth: 48,
-      minHeight: 48, // Guarantees 48x48 dp hit box
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: 8),
         decoration: BoxDecoration(
           color: isAccent
               ? (accentColor ?? AppColors.primary).withValues(alpha: 0.16)

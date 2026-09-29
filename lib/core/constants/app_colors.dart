@@ -71,6 +71,20 @@ class AppColors {
 class AppIcons {
   static IconData getIcon(String code) {
     switch (code.toLowerCase()) {
+      case 'habit':
+      case 'check':
+      case 'task':
+      case 'done':
+        return Icons.check_circle_rounded;
+      case 'target':
+      case 'goal':
+        return Icons.track_changes_rounded;
+      case 'star':
+        return Icons.star_rounded;
+      case 'bolt':
+      case 'lightning':
+      case 'energy':
+        return Icons.bolt_rounded;
       case 'water':
       case 'hydration':
       case '💧':
@@ -125,19 +139,22 @@ class AppIcons {
       case 'audio':
         return Icons.music_note_rounded;
       default:
-        return Icons.bolt_rounded;
+        return Icons.check_circle_rounded;
     }
   }
 
   static const List<Map<String, dynamic>> availableIcons = [
-    {'key': 'water', 'label': 'Hydration', 'icon': Icons.water_drop_rounded},
-    {'key': 'fitness', 'label': 'Cardio / Run', 'icon': Icons.directions_run_rounded},
-    {'key': 'gym', 'label': 'Workout', 'icon': Icons.fitness_center_rounded},
+    {'key': 'habit', 'label': 'General Habit', 'icon': Icons.check_circle_rounded},
+    {'key': 'target', 'label': 'Target / Goal', 'icon': Icons.track_changes_rounded},
+    {'key': 'star', 'label': 'Priority', 'icon': Icons.star_rounded},
+    {'key': 'timer', 'label': 'Deep Work', 'icon': Icons.timer_rounded},
     {'key': 'code', 'label': 'Coding', 'icon': Icons.terminal_rounded},
     {'key': 'book', 'label': 'Reading', 'icon': Icons.auto_stories_rounded},
+    {'key': 'fitness', 'label': 'Cardio / Run', 'icon': Icons.directions_run_rounded},
+    {'key': 'gym', 'label': 'Workout', 'icon': Icons.fitness_center_rounded},
+    {'key': 'water', 'label': 'Hydration', 'icon': Icons.water_drop_rounded},
     {'key': 'mind', 'label': 'Meditation', 'icon': Icons.spa_rounded},
     {'key': 'sleep', 'label': 'Wind Down', 'icon': Icons.bedtime_rounded},
-    {'key': 'timer', 'label': 'Deep Work', 'icon': Icons.timer_rounded},
     {'key': 'art', 'label': 'Creativity', 'icon': Icons.palette_rounded},
     {'key': 'walk', 'label': 'Walking', 'icon': Icons.hiking_rounded},
   ];

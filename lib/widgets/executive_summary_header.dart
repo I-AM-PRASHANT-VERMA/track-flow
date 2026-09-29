@@ -69,25 +69,13 @@ class ExecutiveSummaryHeader extends StatelessWidget {
           // Top Row: Logo, Title, Streak pill, and Settings/Backup
           Row(
             children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(9),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.35),
-                    width: 0.9,
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(9),
-                  child: Image.asset(
-                    'assets/images/app_logo.png',
-                    width: 32,
-                    height: 32,
-                    fit: BoxFit.cover,
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(width: AppSpacing.p8),
@@ -226,22 +214,13 @@ class ExecutiveSummaryHeader extends StatelessWidget {
       child: Row(
         children: [
           // Logo & Brand
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : const Color(0xFFE2E8F0),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.35), width: 0.8),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/app_logo.png',
-                width: 28,
-                height: 28,
-                fit: BoxFit.cover,
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(7),
+            child: Image.asset(
+              'assets/images/app_logo.png',
+              width: 28,
+              height: 28,
+              fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: AppSpacing.p8),

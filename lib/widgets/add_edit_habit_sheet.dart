@@ -30,15 +30,9 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
   late HabitTimeOfDay _selectedTimeOfDay;
   late List<int> _scheduledDays;
 
-  final List<String> _commonCategories = [
-    'Health',
-    'Fitness',
-    'Focus',
-    'Mindset',
-    'Sleep',
-    'Wellness',
-    'Productivity',
-  ];
+  late List<String> _commonCategories;
+  bool _isAddingCustomCategory = false;
+  late TextEditingController _customCategoryController;
 
   @override
   void initState() {
@@ -47,8 +41,23 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     _titleController = TextEditingController(text: h?.title ?? '');
     _targetController = TextEditingController(text: (h?.targetPerDay ?? 1).toString());
     _unitController = TextEditingController(text: h?.unit ?? 'times');
-    _selectedCategory = h?.category ?? 'Health';
-    _selectedIcon = h?.iconCode ?? 'water';
+    _customCategoryController = TextEditingController();
+
+    _commonCategories = [
+      'Productivity',
+      'Fitness & Health',
+      'Deep Work',
+      'Mindset',
+      'Learning',
+      'Daily Routine',
+    ];
+
+    if (h != null && !_commonCategories.contains(h.category)) {
+      _commonCategories.add(h.category);
+    }
+
+    _selectedCategory = h?.category ?? 'Productivity';
+    _selectedIcon = h?.iconCode ?? 'habit';
     _selectedColor = h?.colorValue ?? AppColors.habitPalettes.first.toARGB32();
     _selectedType = h?.type ?? HabitType.boolean;
     _selectedTimeOfDay = h?.timeOfDay ?? HabitTimeOfDay.morning;
@@ -60,6 +69,7 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
     _titleController.dispose();
     _targetController.dispose();
     _unitController.dispose();
+    _customCategoryController.dispose();
     super.dispose();
   }
 
@@ -282,49 +292,174 @@ class _AddEditHabitSheetState extends State<AddEditHabitSheet> {
                 ),
               ),
               const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _commonCategories.map((cat) {
-                    final isSelected = _selectedCategory == cat;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selectedCategory = cat);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12)
-                                : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
+              if (_isAddingCustomCategory) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _customCategoryController,
+                        autofocus: true,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Enter category name...',
+                          hintStyle: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          filled: true,
+                          fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                          border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
-                              width: isSelected ? 1.2 : 0.8,
+                            borderSide: BorderSide(color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: AppColors.primary, width: 1.2),
+                          ),
+                        ),
+                        onSubmitted: (val) {
+                          final name = val.trim();
+                          if (name.isNotEmpty) {
+                            setState(() {
+                              if (!_commonCategories.contains(name)) {
+                                _commonCategories.add(name);
+                              }
+                              _selectedCategory = name;
+                              _isAddingCustomCategory = false;
+                              _customCategoryController.clear();
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        final name = _customCategoryController.text.trim();
+                        if (name.isNotEmpty) {
+                          setState(() {
+                            if (!_commonCategories.contains(name)) {
+                              _commonCategories.add(name);
+                            }
+                            _selectedCategory = name;
+                            _isAddingCustomCategory = false;
+                            _customCategoryController.clear();
+                          });
+                        } else {
+                          setState(() => _isAddingCustomCategory = false);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(9),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.check_rounded, size: 16, color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    GestureDetector(
+                      onTap: () => setState(() => _isAddingCustomCategory = false),
+                      child: Container(
+                        padding: const EdgeInsets.all(9),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark ? AppColors.darkCardBorder : const Color(0xFFCBD5E1),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: const Icon(Icons.close_rounded, size: 16, color: AppColors.textMuted),
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ..._commonCategories.map((cat) {
+                        final isSelected = _selectedCategory == cat;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() => _selectedCategory = cat);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12)
+                                    : (isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9)),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : (isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0)),
+                                  width: isSelected ? 1.2 : 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                cat,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                  color: isSelected
+                                      ? (isDark ? AppColors.textPrimary : AppColors.primary)
+                                      : (isDark ? AppColors.textMuted : Colors.black54),
+                                ),
+                              ),
                             ),
                           ),
-                          child: Text(
-                            cat,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                              color: isSelected
-                                  ? (isDark ? AppColors.textPrimary : AppColors.primary)
-                                  : (isDark ? AppColors.textMuted : Colors.black54),
+                        );
+                      }),
+                      // + Custom Category Chip
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => setState(() => _isAddingCustomCategory = true),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.add_rounded, size: 14, color: AppColors.primary),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Custom',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ],
+                  ),
                 ),
-              ),
+              ],
 
               const SizedBox(height: 14),
 
