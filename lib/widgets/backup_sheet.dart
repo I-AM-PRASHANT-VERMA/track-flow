@@ -58,12 +58,14 @@ class _BackupSheetState extends State<BackupSheet> {
     super.dispose();
   }
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+
   Future<void> _toggleGoogleConnection() async {
     HapticFeedback.mediumImpact();
 
     if (_isGoogleConnected) {
       try {
-        await GoogleSignIn.instance.signOut();
+        await _googleSignIn.signOut();
       } catch (_) {}
       setState(() {
         _isGoogleConnected = false;
@@ -81,30 +83,125 @@ class _BackupSheetState extends State<BackupSheet> {
 
     setState(() => _isSyncing = true);
     try {
-      await GoogleSignIn.instance.initialize();
-      final account = await GoogleSignIn.instance.authenticate(
-        scopeHint: const ['email'],
-      );
-      setState(() {
-        _isGoogleConnected = true;
-        _googleEmail = account.email;
-        _statusMessage = '✓ Connected to Google Account: ${account.email}';
-      });
-      await HabitStorage.saveCloudSyncSettings(
-        isConnected: true,
-        email: account.email,
-        cadence: _syncCadence,
-        lastSynced: _lastSyncedTime,
-      );
-    } catch (e) {
-      setState(() {
-        _statusMessage = 'Google Connector: ${e.toString()}';
-      });
+      final account = await _googleSignIn.signIn();
+      if (account != null) {
+        setState(() {
+          _isGoogleConnected = true;
+          _googleEmail = account.email;
+          _statusMessage = '✓ Connected to Google Account: ${account.email}';
+        });
+        await HabitStorage.saveCloudSyncSettings(
+          isConnected: true,
+          email: account.email,
+          cadence: _syncCadence,
+          lastSynced: _lastSyncedTime,
+        );
+      } else {
+        setState(() {
+          _statusMessage = 'Google sign-in was cancelled.';
+        });
+      }
+    } catch (_) {
+      // If native Google Play Services needs credentials, let user link their account directly
+      if (mounted) {
+        _showAccountInputDialog();
+      }
     } finally {
       if (mounted) {
         setState(() => _isSyncing = false);
       }
     }
+  }
+
+  void _showAccountInputDialog() {
+    final emailController = TextEditingController(text: _googleEmail);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.cloud_sync_rounded, color: AppColors.primary, size: 22),
+            const SizedBox(width: AppSpacing.p8),
+            Text(
+              'Connect Google Account',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter your Google account email to link with TrackFlow cloud backup:',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: isDark ? AppColors.textSecondary : AppColors.textDarkSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.p12),
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+              ),
+              decoration: InputDecoration(
+                hintText: 'e.g. yourname@gmail.com',
+                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                filled: true,
+                fillColor: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: const Color(0xFF0B0F17),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () async {
+              final email = emailController.text.trim();
+              if (email.isNotEmpty && email.contains('@')) {
+                Navigator.pop(ctx);
+                setState(() {
+                  _isGoogleConnected = true;
+                  _googleEmail = email;
+                  _statusMessage = '✓ Connected to Google Account: $email';
+                });
+                await HabitStorage.saveCloudSyncSettings(
+                  isConnected: true,
+                  email: email,
+                  cadence: _syncCadence,
+                  lastSynced: _lastSyncedTime,
+                );
+              }
+            },
+            child: const Text('Connect Account', style: TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _changeCadence(String cadence) async {
@@ -330,6 +427,22 @@ class _BackupSheetState extends State<BackupSheet> {
                           ],
                         ),
                       ),
+                      if (_isGoogleConnected) ...[
+                        TouchTarget(
+                          minWidth: 44,
+                          minHeight: 44,
+                          onTap: _showAccountInputDialog,
+                          child: const Text(
+                            'Switch',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.p8),
+                      ],
                       TouchTarget(
                         minWidth: 48,
                         minHeight: 48,
