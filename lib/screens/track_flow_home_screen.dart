@@ -147,20 +147,20 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
                 ],
               ),
       ),
-      // Safe FAB placement clear of Android 3-button navigation bar
+      // Sleek FAB anchored close to bottom navigation
       floatingActionButton: Padding(
         padding: EdgeInsets.only(
-          bottom: (navInset > 0 ? navInset : 0) + AppSpacing.p16,
-          right: AppSpacing.p8,
+          bottom: (navInset > 0 ? (navInset * 0.25) : 0) + 4.0,
+          right: 4.0,
         ),
         child: FloatingActionButton.extended(
           backgroundColor: AppColors.primary,
           foregroundColor: const Color(0xFF0B0F17),
-          elevation: 3,
-          icon: const Icon(Icons.add_rounded, size: 20, color: Color(0xFF0B0F17)),
+          elevation: 2.5,
+          icon: const Icon(Icons.add_rounded, size: 18, color: Color(0xFF0B0F17)),
           label: const Text(
             'New Habit',
-            style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, letterSpacing: 0.1),
           ),
           onPressed: () => _openAddSheet(),
         ),
@@ -226,7 +226,7 @@ class _TrackFlowHomeScreenState extends State<TrackFlowHomeScreen> {
         left: AppSpacing.p16,
         right: AppSpacing.p16,
         top: AppSpacing.p12,
-        bottom: 112 + navInset,
+        bottom: 128 + navInset,
       ),
       children: [
         if (morningHabits.isNotEmpty) ...[

@@ -192,7 +192,7 @@ class HabitStorage {
     final prefs = await SharedPreferences.getInstance();
     return {
       'isConnected': prefs.getBool(_keyCloudSyncConnected) ?? false,
-      'email': prefs.getString(_keyCloudSyncEmail) ?? 'prashant@google.com',
+      'email': prefs.getString(_keyCloudSyncEmail) ?? '',
       'cadence': prefs.getString(_keyCloudSyncCadence) ?? 'Daily',
       'lastSynced': prefs.getString(_keyCloudSyncLastTime),
     };

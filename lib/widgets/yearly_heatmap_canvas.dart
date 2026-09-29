@@ -32,7 +32,7 @@ class _YearlyHeatmapCanvasState extends State<YearlyHeatmapCanvas> {
     final navInset = MediaQuery.of(context).viewPadding.bottom;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 16, right: 16, top: 14, bottom: 96 + navInset),
+      padding: EdgeInsets.only(left: 16, right: 16, top: 6, bottom: 130 + navInset),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -197,6 +197,332 @@ class _YearlyHeatmapCanvasState extends State<YearlyHeatmapCanvas> {
                 ],
               ],
             ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Annual Insights & Consistency Analytics
+          _buildAnnualInsights(context, activeHabits, isDark),
+        ],
+      ),
+    );
+  }
+
+  // Annual consistency insights across past 365 days
+  Widget _buildAnnualInsights(
+    BuildContext context,
+    List<HabitItem> activeHabits,
+    bool isDark,
+  ) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final targetHabits = widget.selectedHabitFilter != null
+        ? [widget.selectedHabitFilter!]
+        : activeHabits;
+
+    int totalCompletions365 = 0;
+    int totalScheduled365 = 0;
+    int activeDaysCount = 0;
+    final weekdayCompletions = List<int>.filled(7, 0);
+    final weekdayScheduled = List<int>.filled(7, 0);
+
+    for (var i = 0; i < 365; i++) {
+      final date = today.subtract(Duration(days: i));
+      int dayCompleted = 0;
+      final weekdayIdx = date.weekday - 1;
+
+      for (final habit in targetHabits) {
+        if (habit.scheduledDays.contains(date.weekday)) {
+          totalScheduled365++;
+          weekdayScheduled[weekdayIdx]++;
+          if (habit.isCompletedOn(date)) {
+            dayCompleted++;
+            totalCompletions365++;
+            weekdayCompletions[weekdayIdx]++;
+          }
+        }
+      }
+
+      if (dayCompleted > 0) {
+        activeDaysCount++;
+      }
+    }
+
+    final double annualRate = totalScheduled365 > 0 ? (totalCompletions365 / totalScheduled365) : 0.0;
+    final int annualPercent = (annualRate * 100).round();
+
+    // Find highest performing weekday
+    int bestWeekdayIdx = 0;
+    double bestWeekdayRate = 0.0;
+    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    for (var d = 0; d < 7; d++) {
+      if (weekdayScheduled[d] > 0) {
+        final rate = weekdayCompletions[d] / weekdayScheduled[d];
+        if (rate > bestWeekdayRate) {
+          bestWeekdayRate = rate;
+          bestWeekdayIdx = d;
+        }
+      }
+    }
+    final bestDayName = weekdayNames[bestWeekdayIdx];
+    final int bestDayPercent = (bestWeekdayRate * 100).round();
+
+    int maxStreak = 0;
+    for (final h in targetHabits) {
+      if (h.bestStreak > maxStreak) {
+        maxStreak = h.bestStreak;
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkCardBorder : AppColors.lightCardBorder,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.bar_chart_rounded, size: 15, color: AppColors.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    'ANNUAL CONSISTENCY & IMPACT',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.6,
+                      color: isDark ? AppColors.textMuted : Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                'PAST 365 DAYS',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? AppColors.textMuted : Colors.black45,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$annualPercent%',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppColors.textDarkPrimary,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Annual Rate',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.textSecondary : Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        '$totalCompletions365 / $totalScheduled365 completed',
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? AppColors.textMuted : Colors.black45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkCardBorder : const Color(0xFFE2E8F0),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$activeDaysCount',
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Active Days',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.textSecondary : Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        'Out of 365 calendar days',
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? AppColors.textMuted : Colors.black45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: annualRate.clamp(0.0, 1.0),
+              minHeight: 6,
+              backgroundColor: isDark ? const Color(0xFF1E1E22) : const Color(0xFFE2E8F0),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        bestDayName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Peak Day ($bestDayPercent%)',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textMuted : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '$maxStreak d',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.streakAmber,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Best Streak',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textMuted : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${targetHabits.length}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? AppColors.textPrimary : AppColors.textDarkPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.selectedHabitFilter != null ? 'Filtered' : 'Tracked Habits',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textMuted : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

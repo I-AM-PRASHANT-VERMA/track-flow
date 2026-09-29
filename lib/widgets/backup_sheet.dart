@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_spacing.dart';
 import '../core/services/habit_storage.dart';
@@ -22,12 +23,13 @@ class BackupSheet extends StatefulWidget {
 
 class _BackupSheetState extends State<BackupSheet> {
   final TextEditingController _importController = TextEditingController();
+
   bool _isImportMode = false;
   String? _statusMessage;
 
   // Google Cloud Drive Sync state
   bool _isGoogleConnected = false;
-  String _googleEmail = 'prashant@google.com';
+  String _googleEmail = '';
   String _syncCadence = 'Daily';
   String? _lastSyncedTime;
   bool _isSyncing = false;
@@ -58,22 +60,51 @@ class _BackupSheetState extends State<BackupSheet> {
 
   Future<void> _toggleGoogleConnection() async {
     HapticFeedback.mediumImpact();
-    final nextState = !_isGoogleConnected;
-    setState(() {
-      _isGoogleConnected = nextState;
-      if (nextState) {
-        _statusMessage = '✓ Google Account connected. Cloud sync activated.';
-      } else {
-        _statusMessage = 'Google Drive Sync disconnected.';
-      }
-    });
 
-    await HabitStorage.saveCloudSyncSettings(
-      isConnected: nextState,
-      email: _googleEmail,
-      cadence: _syncCadence,
-      lastSynced: _lastSyncedTime,
-    );
+    if (_isGoogleConnected) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (_) {}
+      setState(() {
+        _isGoogleConnected = false;
+        _googleEmail = '';
+        _statusMessage = 'Google Drive Sync disconnected.';
+      });
+      await HabitStorage.saveCloudSyncSettings(
+        isConnected: false,
+        email: '',
+        cadence: _syncCadence,
+        lastSynced: _lastSyncedTime,
+      );
+      return;
+    }
+
+    setState(() => _isSyncing = true);
+    try {
+      await GoogleSignIn.instance.initialize();
+      final account = await GoogleSignIn.instance.authenticate(
+        scopeHint: const ['email'],
+      );
+      setState(() {
+        _isGoogleConnected = true;
+        _googleEmail = account.email;
+        _statusMessage = '✓ Connected to Google Account: ${account.email}';
+      });
+      await HabitStorage.saveCloudSyncSettings(
+        isConnected: true,
+        email: account.email,
+        cadence: _syncCadence,
+        lastSynced: _lastSyncedTime,
+      );
+    } catch (e) {
+      setState(() {
+        _statusMessage = 'Google Connector: ${e.toString()}';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isSyncing = false);
+      }
+    }
   }
 
   Future<void> _changeCadence(String cadence) async {

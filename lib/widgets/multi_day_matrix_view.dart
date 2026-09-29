@@ -108,7 +108,7 @@ class _MultiDayMatrixViewState extends State<MultiDayMatrixView> {
         left: AppSpacing.p16,
         right: AppSpacing.p16,
         top: 6.0,
-        bottom: 96 + navInset,
+        bottom: 130 + navInset,
       ),
       child: Column(
         children: [
