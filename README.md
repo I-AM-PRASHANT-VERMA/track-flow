@@ -1,67 +1,54 @@
-# TrackFlow ⚡
+# TrackFlow
 
-> **Zero-Bloat, High-Density Habit & Ritual Engine**  
-> *100% Offline • Zero Analytics • Zero Cloud Dependence • Built for Relentless Consistency*
+> A fast, offline habit tracker: one-tap check-ins, a 7-day matrix and a 365-day canvas.
+> No account, no analytics, no network calls: your habits stay on your phone.
 
----
+## What it does
 
-## ✨ Philosophy & Highlights
+- **Today's Flow**: habits grouped by time of day (morning, deep work, evening, anytime). Yes/no habits complete with one tap; measurable habits (glasses, pages, minutes) use an inline stepper with a progress bar. Each card shows the last seven days, and any past day can be toggled.
+- **7-Day Matrix**: every habit against the last seven days, with month-to-date consistency, a rolling 30-day rate, perfect days and the best streak.
+- **365-Day Canvas**: a 53-week heatmap (weeks start on Monday) for all habits or one habit, with rest days drawn differently from missed days and a tap-to-inspect day detail.
+- **Schedules and streaks**: habits can repeat on chosen weekdays; rest days neither count toward nor break a streak.
+- **Backup and restore**: copy a backup of all habits as text and paste it back to restore. Restore is validated, asks for confirmation and can be undone. Deleting a habit can be undone too.
 
-TrackFlow is engineered for people who value speed, spatial density, and absolute privacy. Unlike mainstream habit trackers with subscription paywalls, intrusive cloud syncs, and sluggish modals, TrackFlow delivers:
+## Privacy
 
-- **1-Tap Direct Toggling**: Boolean habits complete in a single tap right from the card.
-- **Zero-Modal Inline Stepper**: Measurable habits (glasses of water, pages read, coding minutes) adjust directly on the card with instant visual progress bars.
-- **Micro 7-Day History Matrix**: Every single habit card displays the last 7 weekdays `[M][T][W][T][F][S][S]` with 1-tap retrospective logging.
-- **Three Perspective Views**:
-  - **🌅 Today's Flow**: Grouped into rituals (*Morning*, *Deep Work & Mastery*, *Evening Wind-Down*, *Anytime*).
-  - **📊 7-Day Matrix**: High-density spreadsheet-style multi-day matrix for reviewing habit streaks across the week.
-  - **🟩 365-Day Contribution Canvas**: Custom 60fps GitHub-style annual heatmap supporting habit filtering and daily intensity inspection.
-- **🛡️ 100% Offline & Private**: Zero network permissions declared in `AndroidManifest.xml`. Your habits never leave your phone storage.
-- **💾 Encrypted/Plain JSON Backup**: 1-tap offline export and restore directly to clipboard or file.
+Data is stored in the app's private storage on the device (Android SharedPreferences). It is **not encrypted** by the app. Release builds declare no network permission and the app makes no network requests. Android's own device backup may include app data if it is enabled on the phone.
 
----
+## Architecture
 
-## 📱 Screenshots & Views
+Layered, feature-first, following the Flutter team's architecture guide. The full rationale and the evidence behind it are in [docs/engineering/FILE-ORGANIZATION.md](docs/engineering/FILE-ORGANIZATION.md).
 
-| Today's Flow | 7-Day Matrix | 365-Day Canvas |
-|:---:|:---:|:---:|
-| Grouped by Rituals with Inline Steppers | Spreadsheet-style Multi-Day Matrix | 53-Week Annual Contribution Grid |
+```
+lib/
+  domain/     pure Dart: Habit, Day (calendar math without DST bugs), streak and statistics rules
+  data/       HabitRepository (single source of truth), versioned storage, backup format
+  core/       theme, "today" notifier, shared widgets
+  features/   home, flow, matrix, heatmap, habit_editor, backup (views hold no business logic)
+  app.dart, main.dart (the only place that picks concrete implementations)
+```
 
----
+The layer rules are enforced by `test/architecture_test.dart`. Stored data and backups are versioned; every released format has a frozen fixture that must keep loading (`test/compat`, [docs/engineering/COMPATIBILITY.md](docs/engineering/COMPATIBILITY.md)).
 
-## 🏗️ Architecture & Technology Stack
+## Development
 
-- **Framework**: Flutter 3.x (Dart 3.x)
-- **Design Tokens**: OLED Deep Charcoal (`#080C14`), Slate Surfaces (`#0F172A`), Emerald Neon (`#10B981`)
-- **State & Local Persistence**: Encrypted local storage with `SharedPreferences` + immutable entity state
-- **Rendering**: Custom 60fps `CustomPainter` for the 53-week x 7-day contribution canvas
+Requirements: Flutter 3.47.5 (pinned in CI), Android SDK.
 
----
-
-## 🚀 Building & Running
-
-### Prerequisites
-- Flutter SDK (>= 3.29.0)
-- Android SDK (API 34+)
-
-### Run in Debug Mode
 ```bash
 flutter pub get
 flutter run
 ```
 
-### Build Split-ABI Release APK
-```bash
-flutter build apk --release --split-per-abi
-```
-The output APKs are located at `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`.
+Debug builds install as **TrackFlow Dev** (`com.trackflow.app.track_flow.dev`) next to the release app, so testing on a phone never touches real data.
 
-### Run Test Suite
+Before pushing, run the same checks as CI (format, analyze, tests, coverage ratchet):
+
 ```bash
-flutter test
+pwsh -File scripts/presubmit.ps1 -Strict
 ```
 
----
+Release process and staged rollout: [docs/engineering/RELEASE.md](docs/engineering/RELEASE.md).
 
-## 📄 License
-MIT License. Built with craft.
+## License
+
+MIT License.

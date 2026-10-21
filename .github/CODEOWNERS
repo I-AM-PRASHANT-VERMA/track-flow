@@ -1,0 +1,5 @@
+# Every change needs the owner's review once the ruleset requires code-owner approval.
+*                                  @I-AM-PRASHANT-VERMA
+/lib/core/services/                @I-AM-PRASHANT-VERMA
+/android/                          @I-AM-PRASHANT-VERMA
+/.github/                          @I-AM-PRASHANT-VERMA

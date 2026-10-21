@@ -1,0 +1,6 @@
+# Normalise line endings in the repository; binaries are never touched.
+* text=auto
+*.png binary
+*.jpg binary
+*.jks binary
+*.keystore binary
