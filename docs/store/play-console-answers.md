@@ -11,11 +11,11 @@ Answers for the Play Console forms, matching what the app really does (release b
 
 ## Privacy policy
 
-Create a Google Site in the same account as the other apps, titled **TrackFlow - Privacy Policy**, paste the text of `privacy-policy.html`, publish it (suggested address: `https://sites.google.com/view/trackflow-privacy-policy`), and put that link in **App content -> Privacy policy**. Play needs a working web link, not a file.
+Published (22 Oct 2026) as the home page of the Google Site **TrackFlow**: `https://sites.google.com/view/trackflow`. Put that link in **App content -> Privacy policy**. Play needs a working web link, not a file. The page text is `privacy-policy.html`; edit the site and this file together.
 
 ## Terms of use
 
-Same Google Site (add a second page) or a separate site titled **TrackFlow - Terms of Use** with the text of `terms-of-use.html` (suggested address: `https://sites.google.com/view/trackflow-terms`). Play does not ask for it in a form; link it from the store listing's website field or the privacy policy page. The terms link to the privacy policy at the address above, so keep both addresses as published.
+Second page of the same site: `https://sites.google.com/view/trackflow/terms-of-use` (text: `terms-of-use.html`). Play does not ask for it in a form; put it in the store listing's website field.
 
 ## Data safety
 
