@@ -1,0 +1,62 @@
+{
+  "app": "TrackFlow",
+  "version": "1.0.0",
+  "exportedAt": "2026-03-09T21:30:00.000",
+  "habits": [
+    {
+      "id": "fixture_habit_1",
+      "title": "Morning Run",
+      "category": "Fitness",
+      "iconCode": "fitness",
+      "colorValue": 4279739713,
+      "type": 0,
+      "timeOfDay": 0,
+      "targetPerDay": 1,
+      "unit": "session",
+      "scheduledDays": [1, 2, 3, 4, 5, 6, 7],
+      "logs": {
+        "2026-03-07": 1,
+        "2026-03-08": 1,
+        "2026-03-09": 1
+      },
+      "createdAt": "2026-01-05T08:00:00.000",
+      "isArchived": false
+    },
+    {
+      "id": "fixture_habit_2",
+      "title": "Hydration Goal",
+      "category": "Health",
+      "iconCode": "water",
+      "colorValue": 4279221485,
+      "type": 1,
+      "timeOfDay": 1,
+      "targetPerDay": 8,
+      "unit": "glasses",
+      "scheduledDays": [1, 2, 3, 4, 5, 6, 7],
+      "logs": {
+        "2026-03-08": 8,
+        "2026-03-09": 6
+      },
+      "createdAt": "2026-02-01T09:30:00.000",
+      "isArchived": false
+    },
+    {
+      "id": "fixture_habit_3",
+      "title": "Weekday Reading",
+      "category": "Mindset",
+      "iconCode": "book",
+      "colorValue": 4289037815,
+      "type": 1,
+      "timeOfDay": 3,
+      "targetPerDay": 20,
+      "unit": "pages",
+      "scheduledDays": [1, 2, 3, 4, 5],
+      "logs": {
+        "2026-03-06": 20,
+        "2026-03-09": 25
+      },
+      "createdAt": "2025-11-20T21:15:00.000",
+      "isArchived": true
+    }
+  ]
+}
