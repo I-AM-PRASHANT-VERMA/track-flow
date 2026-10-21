@@ -18,6 +18,12 @@ Shape today: `{ "app": "TrackFlow", "version": "1.0.0", "exportedAt": ..., "habi
 - Import accepts every schema it knows; a newer major schema is rejected with a clear message and changes nothing.
 - Import is validated first (non-empty habit list unless the user confirms an empty restore, unique ids, titles non-empty, targets >= 1), takes an automatic snapshot, and asks for confirmation showing the habit count.
 
+## Status (2026-10-21, branch refactor/architecture)
+- Schema 2 is implemented: key `track_flow_habits_v2`, envelope `{"schemaVersion": 2, "habits": [...]}`, enums by name. The 1.0.0 key `track_flow_habits_v1` is read for migration and never written or deleted.
+- Unreadable data is copied to `track_flow_recovery_<epoch ms>` before anything could overwrite it.
+- Backups now carry `"schemaVersion": 2`. App 1.0.0 cannot import a schema 2 backup: its importer fails on the enum names and reports "Invalid backup format" without changing data (checked by reading the 1.0.0 import code; not run on a device). Schema 1 backups still import in the new app.
+- Frozen fixtures: `habits_v1.json`, `backup_v1.json`, `habits_v2.json`, `backup_v2.json`.
+
 ## Contract 3: internal interfaces
 `HabitRepository`, `HabitController`, `HabitStats` are additive-only: new optional parameters and new members are fine; renames and removals need the deprecation steps below.
 
