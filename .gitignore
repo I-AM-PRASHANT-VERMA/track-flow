@@ -49,3 +49,7 @@ app.*.map.json
 
 # Local audit and agent working notes (not part of the product)
 docs/audit/
+
+# Project-local scratch space and release secrets (kept inside the project, never pushed)
+.tmp/
+.secrets/
