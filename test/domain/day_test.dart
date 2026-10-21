@@ -22,15 +22,23 @@ void main() {
       expect(Day(2026, 3, 31).addDays(1), Day(2026, 4, 1));
     });
 
-    test('stepping across daylight-saving dates yields distinct consecutive days', () {
-      // 2026-03-08 and 2026-11-01 are DST changes in the US; 2026-03-29 and
-      // 2026-10-25 in Europe. Day math must not depend on the host time zone.
-      for (final pivot in [Day(2026, 3, 8), Day(2026, 3, 29), Day(2026, 10, 25), Day(2026, 11, 1)]) {
-        final keys = {for (var i = -3; i <= 3; i++) pivot.addDays(i).key};
-        expect(keys, hasLength(7), reason: 'around $pivot');
-        expect(pivot.addDays(1).daysSince(pivot), 1);
-      }
-    });
+    test(
+      'stepping across daylight-saving dates yields distinct consecutive days',
+      () {
+        // 2026-03-08 and 2026-11-01 are DST changes in the US; 2026-03-29 and
+        // 2026-10-25 in Europe. Day math must not depend on the host time zone.
+        for (final pivot in [
+          Day(2026, 3, 8),
+          Day(2026, 3, 29),
+          Day(2026, 10, 25),
+          Day(2026, 11, 1),
+        ]) {
+          final keys = {for (var i = -3; i <= 3; i++) pivot.addDays(i).key};
+          expect(keys, hasLength(7), reason: 'around $pivot');
+          expect(pivot.addDays(1).daysSince(pivot), 1);
+        }
+      },
+    );
 
     test('weekday and startOfWeek follow ISO (Monday = 1)', () {
       final wednesday = Day(2026, 10, 21);

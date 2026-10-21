@@ -32,13 +32,20 @@ final class SharedPrefsHabitStore implements HabitStore {
     final current = _prefs.getString(currentKey);
     if (current != null) {
       final parsed = _parse(current, expectEnvelope: true);
-      if (parsed != null && !parsed.lostEntries) return StoredHabits(parsed.habits);
+      if (parsed != null && !parsed.lostEntries) {
+        return StoredHabits(parsed.habits);
+      }
 
       // The next write would replace this payload, so keep it first.
       await _keepRecoveryCopy(current);
-      if (parsed != null) return StoredHabits(parsed.habits, hadUnreadableData: true);
+      if (parsed != null) {
+        return StoredHabits(parsed.habits, hadUnreadableData: true);
+      }
       final fallback = _readLegacy();
-      return StoredHabits(fallback?.habits ?? const [], hadUnreadableData: true);
+      return StoredHabits(
+        fallback?.habits ?? const [],
+        hadUnreadableData: true,
+      );
     }
 
     final legacy = _readLegacy();
@@ -90,7 +97,10 @@ final class SharedPrefsHabitStore implements HabitStore {
     final habits = <Habit>[];
     var lost = false;
     for (final entry in entries) {
-      final habit = HabitJson.decode(entry, fallbackCreatedAt: fallbackCreatedAt);
+      final habit = HabitJson.decode(
+        entry,
+        fallbackCreatedAt: fallbackCreatedAt,
+      );
       if (habit == null || !seenIds.add(habit.id)) {
         lost = true;
         continue;
@@ -101,7 +111,10 @@ final class SharedPrefsHabitStore implements HabitStore {
   }
 
   Future<void> _keepRecoveryCopy(String raw) async {
-    await _prefs.setString('$recoveryKeyPrefix${_clock().millisecondsSinceEpoch}', raw);
+    await _prefs.setString(
+      '$recoveryKeyPrefix${_clock().millisecondsSinceEpoch}',
+      raw,
+    );
   }
 }
 

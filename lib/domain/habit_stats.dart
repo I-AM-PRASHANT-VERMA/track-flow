@@ -91,7 +91,9 @@ abstract final class HabitStats {
     for (var day = firstOfMonth; !day.isAfter(today); day = day.addDays(1)) {
       final dayTally = tracked.tallyOn(day);
       monthToDate += dayTally;
-      if (dayTally.scheduled > 0 && dayTally.completed == dayTally.scheduled) perfectDays++;
+      if (dayTally.scheduled > 0 && dayTally.completed == dayTally.scheduled) {
+        perfectDays++;
+      }
     }
 
     var rolling30 = Tally.zero;
@@ -130,7 +132,8 @@ abstract final class HabitStats {
     var peakRatio = 0.0;
     for (var weekday = 1; weekday <= 7; weekday++) {
       final tally = byWeekday[weekday];
-      if (tally.scheduled > 0 && (peakWeekday == null || tally.ratio > peakRatio)) {
+      if (tally.scheduled > 0 &&
+          (peakWeekday == null || tally.ratio > peakRatio)) {
         peakWeekday = weekday;
         peakRatio = tally.ratio;
       }
@@ -153,12 +156,14 @@ abstract final class HabitStats {
   }
 
   /// Scheduled and completed counts on [day] across active, already started habits.
-  static Tally onDay(Iterable<Habit> habits, Day day) => _Tracked(active(habits)).tallyOn(day);
+  static Tally onDay(Iterable<Habit> habits, Day day) =>
+      _Tracked(active(habits)).tallyOn(day);
 }
 
 /// Habits with their start days computed once, for loops over many days.
 final class _Tracked {
-  _Tracked(this.habits) : _starts = [for (final h in habits) HabitRules.startDay(h)];
+  _Tracked(this.habits)
+    : _starts = [for (final h in habits) HabitRules.startDay(h)];
 
   final List<Habit> habits;
   final List<Day> _starts;

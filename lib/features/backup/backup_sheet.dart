@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/feedback/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text.dart';
@@ -14,7 +15,11 @@ import '../../domain/habit.dart';
 /// Pops with the habits that were replaced when a restore happened, so the
 /// caller can offer to undo it; pops with null otherwise.
 class BackupSheet extends StatefulWidget {
-  const BackupSheet({super.key, required this.repository, this.clock = systemClock});
+  const BackupSheet({
+    super.key,
+    required this.repository,
+    this.clock = systemClock,
+  });
 
   final HabitRepository repository;
   final Clock clock;
@@ -35,13 +40,24 @@ class _BackupSheetState extends State<BackupSheet> {
   }
 
   Future<void> _export() async {
-    HapticFeedback.lightImpact();
-    final text = BackupCodec.export(widget.repository.habits, now: widget.clock());
+    Haptics.light();
+    final text = BackupCodec.export(
+      widget.repository.habits,
+      now: widget.clock(),
+    );
     try {
       await Clipboard.setData(ClipboardData(text: text));
-      _show(_Status.success('Backup of ${widget.repository.habits.length} habits copied. Paste it somewhere safe.'));
+      _show(
+        _Status.success(
+          'Backup of ${widget.repository.habits.length} habits copied. Paste it somewhere safe.',
+        ),
+      );
     } on PlatformException {
-      _show(const _Status.error('Could not copy to the clipboard. Please try again.'));
+      _show(
+        const _Status.error(
+          'Could not copy to the clipboard. Please try again.',
+        ),
+      );
     }
   }
 
@@ -61,7 +77,7 @@ class _BackupSheetState extends State<BackupSheet> {
     try {
       backup = BackupCodec.parse(_input.text, now: widget.clock());
     } on BackupException catch (error) {
-      HapticFeedback.heavyImpact();
+      Haptics.heavy();
       _show(_Status.error(error.problem.message));
       return;
     }
@@ -79,8 +95,14 @@ class _BackupSheetState extends State<BackupSheet> {
                     'You can undo this right after.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Replace')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Replace'),
+          ),
         ],
       ),
     );
@@ -131,8 +153,13 @@ class _BackupSheetState extends State<BackupSheet> {
           ),
           const SizedBox(height: AppSpacing.p8),
           OutlinedButton.icon(
-            icon: Icon(_isRestoring ? Icons.close_rounded : Icons.download_rounded, size: 16),
-            label: Text(_isRestoring ? 'Cancel Restore' : 'Restore from Backup'),
+            icon: Icon(
+              _isRestoring ? Icons.close_rounded : Icons.download_rounded,
+              size: 16,
+            ),
+            label: Text(
+              _isRestoring ? 'Cancel Restore' : 'Restore from Backup',
+            ),
             style: _outlinedStyle,
             onPressed: () => setState(() => _isRestoring = !_isRestoring),
           ),
@@ -141,7 +168,11 @@ class _BackupSheetState extends State<BackupSheet> {
             TextField(
               controller: _input,
               maxLines: 4,
-              style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: AppColors.textPrimary),
+              style: const TextStyle(
+                fontSize: 12,
+                fontFamily: 'monospace',
+                color: AppColors.textPrimary,
+              ),
               decoration: InputDecoration(
                 hintText: 'Paste your TrackFlow backup here',
                 suffixIcon: IconButton(
@@ -157,10 +188,15 @@ class _BackupSheetState extends State<BackupSheet> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.onPrimary,
                 minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: _restore,
-              child: const Text('Restore Habits', style: TextStyle(fontWeight: FontWeight.w800)),
+              child: const Text(
+                'Restore Habits',
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
             ),
           ],
         ],
@@ -195,7 +231,10 @@ class _StatusBanner extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.p12,
+          vertical: AppSpacing.p8,
+        ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(10),
@@ -204,7 +243,11 @@ class _StatusBanner extends StatelessWidget {
         child: Text(
           status.message,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
         ),
       ),
     );

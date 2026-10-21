@@ -42,7 +42,11 @@ abstract final class HabitJson {
       iconKey: _string(json['iconCode']) ?? '⚡',
       colorValue: _int(json['colorValue']) ?? 0xFF10B981,
       type: _enum(HabitType.values, json['type'], HabitType.boolean),
-      timeOfDay: _enum(HabitTimeOfDay.values, json['timeOfDay'], HabitTimeOfDay.anytime),
+      timeOfDay: _enum(
+        HabitTimeOfDay.values,
+        json['timeOfDay'],
+        HabitTimeOfDay.anytime,
+      ),
       targetPerDay: _int(json['targetPerDay']) ?? 1,
       unit: _string(json['unit']) ?? 'times',
       scheduledDays: _days(json['scheduledDays']),
@@ -56,7 +60,8 @@ abstract final class HabitJson {
 
   static int? _int(Object? value) => value is num ? value.toInt() : null;
 
-  static DateTime? _date(Object? value) => value is String ? DateTime.tryParse(value) : null;
+  static DateTime? _date(Object? value) =>
+      value is String ? DateTime.tryParse(value) : null;
 
   /// Accepts the enum's index (schema 1) or name (schema 2).
   static T _enum<T extends Enum>(List<T> values, Object? raw, T fallback) {
@@ -81,7 +86,9 @@ abstract final class HabitJson {
     if (raw is! Map<String, Object?>) return const {};
     return {
       for (final entry in raw.entries)
-        if (Day.tryParseKey(entry.key) != null && entry.value is num && (entry.value! as num) > 0)
+        if (Day.tryParseKey(entry.key) != null &&
+            entry.value is num &&
+            (entry.value! as num) > 0)
           entry.key: (entry.value! as num).toInt(),
     };
   }

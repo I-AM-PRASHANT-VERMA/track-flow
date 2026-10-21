@@ -97,8 +97,9 @@ final class Habit {
   }
 
   static List<int> _normalizeDays(Iterable<int>? days) {
-    final valid = (days ?? everyDay).where((d) => d >= 1 && d <= 7).toSet().toList()
-      ..sort();
+    final valid =
+        (days ?? everyDay).where((d) => d >= 1 && d <= 7).toSet().toList()
+          ..sort();
     return List.unmodifiable(valid.isEmpty ? everyDay : valid);
   }
 }

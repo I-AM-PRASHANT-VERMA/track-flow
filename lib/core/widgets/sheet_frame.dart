@@ -7,7 +7,11 @@ import '../theme/app_spacing.dart';
 /// the system navigation bar, and scrolls when the content is taller than the
 /// space left.
 class SheetFrame extends StatelessWidget {
-  const SheetFrame({super.key, required this.child, this.horizontalPadding = AppSpacing.p16});
+  const SheetFrame({
+    super.key,
+    required this.child,
+    this.horizontalPadding = AppSpacing.p16,
+  });
 
   final Widget child;
   final double horizontalPadding;

@@ -4,7 +4,10 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-final _importPattern = RegExp(r'''^import\s+['"]([^'"]+)['"]''', multiLine: true);
+final _importPattern = RegExp(
+  r'''^import\s+['"]([^'"]+)['"]''',
+  multiLine: true,
+);
 
 /// Every import of every Dart file under lib/, resolved to a lib-relative path
 /// (`domain/day.dart`) or kept as a package/dart URI (`package:flutter/...`).
@@ -13,7 +16,9 @@ Map<String, List<String>> _importsByFile() {
   for (final entity in Directory('lib').listSync(recursive: true)) {
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
     final path = entity.path.replaceAll(r'\', '/').substring('lib/'.length);
-    final dir = path.contains('/') ? path.substring(0, path.lastIndexOf('/')) : '';
+    final dir = path.contains('/')
+        ? path.substring(0, path.lastIndexOf('/'))
+        : '';
     result[path] = [
       for (final match in _importPattern.allMatches(entity.readAsStringSync()))
         _resolve(match.group(1)!, dir),
@@ -23,7 +28,9 @@ Map<String, List<String>> _importsByFile() {
 }
 
 String _resolve(String uri, String fromDir) {
-  if (uri.startsWith('package:track_flow/')) return uri.substring('package:track_flow/'.length);
+  if (uri.startsWith('package:track_flow/')) {
+    return uri.substring('package:track_flow/'.length);
+  }
   if (uri.startsWith('package:') || uri.startsWith('dart:')) return uri;
   final parts = [...fromDir.split('/').where((p) => p.isNotEmpty)];
   for (final segment in uri.split('/')) {
@@ -36,15 +43,24 @@ String _resolve(String uri, String fromDir) {
   return parts.join('/');
 }
 
-String _layer(String path) => path.contains('/') ? path.substring(0, path.indexOf('/')) : path;
+String _layer(String path) =>
+    path.contains('/') ? path.substring(0, path.indexOf('/')) : path;
 
-String? _feature(String path) => path.startsWith('features/') ? path.split('/')[1] : null;
+String? _feature(String path) =>
+    path.startsWith('features/') ? path.split('/')[1] : null;
 
 void main() {
   final imports = _importsByFile();
 
   test('lib/ is organised into the agreed top-level layers only', () {
-    final allowed = {'domain', 'data', 'core', 'features', 'app.dart', 'main.dart'};
+    final allowed = {
+      'domain',
+      'data',
+      'core',
+      'features',
+      'app.dart',
+      'main.dart',
+    };
     expect(imports.keys.map(_layer).toSet().difference(allowed), isEmpty);
   });
 
@@ -52,7 +68,9 @@ void main() {
     for (final MapEntry(key: file, value: uris) in imports.entries) {
       if (_layer(file) != 'domain') continue;
       for (final uri in uris) {
-        final ok = uri.startsWith('dart:') && uri != 'dart:ui' || _layer(uri) == 'domain';
+        final ok =
+            uri.startsWith('dart:') && uri != 'dart:ui' ||
+            _layer(uri) == 'domain';
         expect(ok, isTrue, reason: '$file imports $uri');
       }
     }
@@ -62,7 +80,8 @@ void main() {
     for (final MapEntry(key: file, value: uris) in imports.entries) {
       if (_layer(file) != 'data') continue;
       for (final uri in uris) {
-        final ok = uri.startsWith('dart:') ||
+        final ok =
+            uri.startsWith('dart:') ||
             uri == 'package:flutter/foundation.dart' ||
             uri.startsWith('package:shared_preferences/') ||
             {'domain', 'data'}.contains(_layer(uri));
@@ -75,38 +94,62 @@ void main() {
     for (final MapEntry(key: file, value: uris) in imports.entries) {
       if (_layer(file) != 'core') continue;
       for (final uri in uris) {
-        expect({'data', 'features'}.contains(_layer(uri)), isFalse, reason: '$file imports $uri');
+        expect(
+          {'data', 'features'}.contains(_layer(uri)),
+          isFalse,
+          reason: '$file imports $uri',
+        );
       }
     }
   });
 
   test('features use storage only through the repository and backup codec', () {
-    const allowedData = {'data/habit_repository.dart', 'data/backup_codec.dart'};
+    const allowedData = {
+      'data/habit_repository.dart',
+      'data/backup_codec.dart',
+    };
     for (final MapEntry(key: file, value: uris) in imports.entries) {
       if (_layer(file) != 'features') continue;
       for (final uri in uris) {
-        expect(uri.startsWith('package:shared_preferences/'), isFalse, reason: '$file imports $uri');
-        if (_layer(uri) == 'data') expect(allowedData, contains(uri), reason: '$file imports $uri');
+        expect(
+          uri.startsWith('package:shared_preferences/'),
+          isFalse,
+          reason: '$file imports $uri',
+        );
+        if (_layer(uri) == 'data') {
+          expect(allowedData, contains(uri), reason: '$file imports $uri');
+        }
       }
     }
   });
 
-  test('a feature never reaches into another feature, except home composing them', () {
-    for (final MapEntry(key: file, value: uris) in imports.entries) {
-      final feature = _feature(file);
-      if (feature == null || feature == 'home') continue;
-      for (final uri in uris) {
-        final other = _feature(uri);
-        expect(other == null || other == feature, isTrue, reason: '$file imports $uri');
+  test(
+    'a feature never reaches into another feature, except home composing them',
+    () {
+      for (final MapEntry(key: file, value: uris) in imports.entries) {
+        final feature = _feature(file);
+        if (feature == null || feature == 'home') continue;
+        for (final uri in uris) {
+          final other = _feature(uri);
+          expect(
+            other == null || other == feature,
+            isTrue,
+            reason: '$file imports $uri',
+          );
+        }
       }
-    }
-  });
+    },
+  );
 
   test('only main.dart chooses the concrete storage implementation', () {
     for (final MapEntry(key: file, value: uris) in imports.entries) {
       if (file == 'main.dart') continue;
       if (_layer(file) == 'data') continue;
-      expect(uris, isNot(contains('data/shared_prefs_habit_store.dart')), reason: file);
+      expect(
+        uris,
+        isNot(contains('data/shared_prefs_habit_store.dart')),
+        reason: file,
+      );
     }
   });
 }

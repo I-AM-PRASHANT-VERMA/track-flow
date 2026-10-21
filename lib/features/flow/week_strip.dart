@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../core/feedback/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../domain/day.dart';
 import '../../domain/habit.dart';
@@ -21,7 +21,16 @@ class WeekStrip extends StatelessWidget {
   final void Function(Day day, int count) onProgress;
 
   static const _letters = ['', 'M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  static const _names = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  static const _names = [
+    '',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +52,17 @@ class WeekStrip extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.fade,
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.textMuted),
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.textMuted,
+                ),
               ),
             ),
           ),
-          for (var offset = 6; offset >= 0; offset--) _cell(today.addDays(-offset)),
+          for (var offset = 6; offset >= 0; offset--)
+            _cell(today.addDays(-offset)),
         ],
       ),
     );
@@ -60,10 +75,14 @@ class WeekStrip extends StatelessWidget {
 
     final fill = !scheduled
         ? Colors.transparent
-        : (done ? color.withValues(alpha: 0.32) : AppColors.cardBorder.withValues(alpha: 0.5));
+        : (done
+              ? color.withValues(alpha: 0.32)
+              : AppColors.cardBorder.withValues(alpha: 0.5));
     final border = isToday
         ? color
-        : (!scheduled ? AppColors.cardBorder : (done ? color.withValues(alpha: 0.5) : Colors.transparent));
+        : (!scheduled
+              ? AppColors.cardBorder
+              : (done ? color.withValues(alpha: 0.5) : Colors.transparent));
     final letterColor = !scheduled
         ? AppColors.textFaint
         : (done ? AppColors.textPrimary : AppColors.textMuted);
@@ -76,7 +95,7 @@ class WeekStrip extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          HapticFeedback.lightImpact();
+          Haptics.light();
           onProgress(day, done ? 0 : habit.targetPerDay);
         },
         // 30 dp wide x 44 dp tall hit area around a 28 dp visual, so the label
@@ -96,7 +115,11 @@ class WeekStrip extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 _letters[day.weekday],
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: letterColor),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: letterColor,
+                ),
               ),
             ),
           ),

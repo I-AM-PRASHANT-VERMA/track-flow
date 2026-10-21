@@ -30,7 +30,9 @@ class FlowView extends StatelessWidget {
     final sections = buildFlowSections(habits);
     if (sections.isEmpty) return const _EmptyFlow();
 
-    final columns = MediaQuery.orientationOf(context) == Orientation.landscape ? 2 : 1;
+    final columns = MediaQuery.orientationOf(context) == Orientation.landscape
+        ? 2
+        : 1;
     final rows = _rows(sections, columns);
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
@@ -66,7 +68,9 @@ class FlowView extends StatelessWidget {
       children: [
         for (var i = 0; i < columns; i++) ...[
           if (i > 0) const SizedBox(width: AppSpacing.p12),
-          Expanded(child: i < cards.length ? card(cards[i]) : const SizedBox.shrink()),
+          Expanded(
+            child: i < cards.length ? card(cards[i]) : const SizedBox.shrink(),
+          ),
         ],
       ],
     );
@@ -77,7 +81,12 @@ class FlowView extends StatelessWidget {
       for (final section in sections) ...[
         _HeaderRow(section),
         for (var i = 0; i < section.habits.length; i += columns)
-          _CardRow(section.habits.sublist(i, (i + columns).clamp(0, section.habits.length))),
+          _CardRow(
+            section.habits.sublist(
+              i,
+              (i + columns).clamp(0, section.habits.length),
+            ),
+          ),
       ],
     ];
   }
@@ -105,10 +114,26 @@ class _SectionHeader extends StatelessWidget {
   final FlowSection section;
 
   static const _titles = {
-    HabitTimeOfDay.morning: ('MORNING RITUALS', Icons.wb_twilight_rounded, AppColors.streakAmber),
-    HabitTimeOfDay.afternoon: ('DEEP WORK & MASTERY', Icons.wb_sunny_rounded, AppColors.secondary),
-    HabitTimeOfDay.evening: ('EVENING WIND-DOWN', Icons.nightlight_round, AppColors.evening),
-    HabitTimeOfDay.anytime: ('ANYTIME RITUALS', Icons.all_inclusive_rounded, AppColors.primary),
+    HabitTimeOfDay.morning: (
+      'MORNING RITUALS',
+      Icons.wb_twilight_rounded,
+      AppColors.streakAmber,
+    ),
+    HabitTimeOfDay.afternoon: (
+      'DEEP WORK & MASTERY',
+      Icons.wb_sunny_rounded,
+      AppColors.secondary,
+    ),
+    HabitTimeOfDay.evening: (
+      'EVENING WIND-DOWN',
+      Icons.nightlight_round,
+      AppColors.evening,
+    ),
+    HabitTimeOfDay.anytime: (
+      'ANYTIME RITUALS',
+      Icons.all_inclusive_rounded,
+      AppColors.primary,
+    ),
   };
 
   @override
@@ -123,15 +148,27 @@ class _SectionHeader extends StatelessWidget {
             Icon(icon, size: 15, color: color),
             const SizedBox(width: 7),
             Flexible(
-              child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppText.sectionLabel),
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.sectionLabel,
+              ),
             ),
             const SizedBox(width: 7),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-              decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(6),
+              ),
               child: Text(
                 '${section.habits.length}',
-                style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           ],
@@ -156,7 +193,11 @@ class _EmptyFlow extends StatelessWidget {
             SizedBox(height: 12),
             Text(
               'No habits tracked yet',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
             ),
             SizedBox(height: 6),
             Text(

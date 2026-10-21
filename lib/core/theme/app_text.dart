@@ -27,5 +27,8 @@ abstract final class AppText {
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle body = TextStyle(fontSize: 12, color: AppColors.textMuted);
+  static const TextStyle body = TextStyle(
+    fontSize: 12,
+    color: AppColors.textMuted,
+  );
 }

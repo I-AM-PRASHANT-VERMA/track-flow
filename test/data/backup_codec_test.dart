@@ -15,7 +15,13 @@ void main() {
   test('export then parse returns the same habits', () {
     final habits = [
       Habit(id: 'a', title: 'A', createdAt: now, logs: const {'2026-03-09': 1}),
-      Habit(id: 'b', title: 'B', createdAt: now, type: HabitType.measurable, targetPerDay: 8),
+      Habit(
+        id: 'b',
+        title: 'B',
+        createdAt: now,
+        type: HabitType.measurable,
+        targetPerDay: 8,
+      ),
     ];
     final text = BackupCodec.export(habits, now: now);
     final json = jsonDecode(text) as Map<String, Object?>;
@@ -42,22 +48,40 @@ void main() {
   });
 
   test('rejects text that is not a backup', () {
-    expect(() => BackupCodec.parse('hello', now: now), throwsProblem(BackupProblem.notABackup));
-    expect(() => BackupCodec.parse('{"habits": 3}', now: now), throwsProblem(BackupProblem.notABackup));
-    expect(() => BackupCodec.parse('{"schemaVersion": "2", "habits": []}', now: now),
-        throwsProblem(BackupProblem.notABackup));
+    expect(
+      () => BackupCodec.parse('hello', now: now),
+      throwsProblem(BackupProblem.notABackup),
+    );
+    expect(
+      () => BackupCodec.parse('{"habits": 3}', now: now),
+      throwsProblem(BackupProblem.notABackup),
+    );
+    expect(
+      () => BackupCodec.parse('{"schemaVersion": "2", "habits": []}', now: now),
+      throwsProblem(BackupProblem.notABackup),
+    );
   });
 
   test('rejects a backup from a newer app version', () {
-    expect(() => BackupCodec.parse('{"schemaVersion": 3, "habits": []}', now: now),
-        throwsProblem(BackupProblem.newerVersion));
+    expect(
+      () => BackupCodec.parse('{"schemaVersion": 3, "habits": []}', now: now),
+      throwsProblem(BackupProblem.newerVersion),
+    );
   });
 
   test('rejects the whole backup if one habit is unreadable or duplicated', () {
-    expect(() => BackupCodec.parse('{"habits": [{"id": "a", "title": "A"}, {"title": "x"}]}', now: now),
-        throwsProblem(BackupProblem.unreadableHabit));
     expect(
-      () => BackupCodec.parse('{"habits": [{"id": "a", "title": "A"}, {"id": "a", "title": "B"}]}', now: now),
+      () => BackupCodec.parse(
+        '{"habits": [{"id": "a", "title": "A"}, {"title": "x"}]}',
+        now: now,
+      ),
+      throwsProblem(BackupProblem.unreadableHabit),
+    );
+    expect(
+      () => BackupCodec.parse(
+        '{"habits": [{"id": "a", "title": "A"}, {"id": "a", "title": "B"}]}',
+        now: now,
+      ),
       throwsProblem(BackupProblem.duplicateHabit),
     );
   });

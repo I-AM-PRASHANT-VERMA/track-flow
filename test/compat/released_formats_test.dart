@@ -16,7 +16,11 @@ String _fixture(String name) => File('test/fixtures/$name').readAsStringSync();
 
 /// The same three habits are stored in every fixture; each format must decode to them.
 void _expectFixtureHabits(List<Habit> habits) {
-  expect(habits.map((h) => h.id), ['fixture_habit_1', 'fixture_habit_2', 'fixture_habit_3']);
+  expect(habits.map((h) => h.id), [
+    'fixture_habit_1',
+    'fixture_habit_2',
+    'fixture_habit_3',
+  ]);
 
   final run = habits[0];
   expect(run.type, HabitType.boolean);
@@ -44,7 +48,10 @@ void main() {
 
   Future<List<Habit>> readStored(Map<String, Object> prefs) async {
     SharedPreferences.setMockInitialValues(prefs);
-    final store = SharedPrefsHabitStore(await SharedPreferences.getInstance(), clock: () => now);
+    final store = SharedPrefsHabitStore(
+      await SharedPreferences.getInstance(),
+      clock: () => now,
+    );
     final stored = await store.read();
     expect(stored.hadUnreadableData, isFalse);
     return stored.habits;
@@ -52,29 +59,45 @@ void main() {
 
   group('stored habits', () {
     test('schema 1 (app 1.0.0, key track_flow_habits_v1)', () async {
-      _expectFixtureHabits(await readStored({SharedPrefsHabitStore.legacyKey: _fixture('habits_v1.json')}));
+      _expectFixtureHabits(
+        await readStored({
+          SharedPrefsHabitStore.legacyKey: _fixture('habits_v1.json'),
+        }),
+      );
     });
 
     test('schema 2 (key track_flow_habits_v2)', () async {
-      _expectFixtureHabits(await readStored({SharedPrefsHabitStore.currentKey: _fixture('habits_v2.json')}));
+      _expectFixtureHabits(
+        await readStored({
+          SharedPrefsHabitStore.currentKey: _fixture('habits_v2.json'),
+        }),
+      );
     });
 
-    test('the current encoder still writes exactly the frozen schema 2 shape', () {
-      final frozen = jsonDecode(_fixture('habits_v2.json')) as Map<String, Object?>;
-      for (final entry in frozen['habits']! as List<Object?>) {
-        final habit = HabitJson.decode(entry, fallbackCreatedAt: now)!;
-        expect(HabitJson.encode(habit), entry);
-      }
-    });
+    test(
+      'the current encoder still writes exactly the frozen schema 2 shape',
+      () {
+        final frozen =
+            jsonDecode(_fixture('habits_v2.json')) as Map<String, Object?>;
+        for (final entry in frozen['habits']! as List<Object?>) {
+          final habit = HabitJson.decode(entry, fallbackCreatedAt: now)!;
+          expect(HabitJson.encode(habit), entry);
+        }
+      },
+    );
   });
 
   group('backups', () {
     test('exported by app 1.0.0', () {
-      _expectFixtureHabits(BackupCodec.parse(_fixture('backup_v1.json'), now: now).habits);
+      _expectFixtureHabits(
+        BackupCodec.parse(_fixture('backup_v1.json'), now: now).habits,
+      );
     });
 
     test('schema 2', () {
-      _expectFixtureHabits(BackupCodec.parse(_fixture('backup_v2.json'), now: now).habits);
+      _expectFixtureHabits(
+        BackupCodec.parse(_fixture('backup_v2.json'), now: now).habits,
+      );
     });
   });
 }

@@ -26,7 +26,9 @@ Future<(HabitRepository, InMemoryHabitStore)> pumpTrackFlow(
   final store = InMemoryHabitStore(habits);
   final repository = HabitRepository(store);
   await repository.load();
-  await tester.pumpWidget(TrackFlowApp(repository: repository, clock: () => testNow));
+  await tester.pumpWidget(
+    TrackFlowApp(repository: repository, clock: () => testNow),
+  );
   await tester.pumpAndSettle();
   return (repository, store);
 }
@@ -44,7 +46,7 @@ Habit testHabit(
   return Habit(
     id: id,
     title: title ?? id,
-    createdAt: DateTime(2026, 1, 1),
+    createdAt: DateTime(2026),
     type: type,
     targetPerDay: target,
     unit: type == HabitType.measurable ? 'glasses' : 'times',

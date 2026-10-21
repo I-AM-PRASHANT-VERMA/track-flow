@@ -35,7 +35,11 @@ class TouchTarget extends StatelessWidget {
       label: semanticLabel,
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(borderRadius: borderRadius, onTap: onTap, child: content),
+        child: InkWell(
+          borderRadius: borderRadius,
+          onTap: onTap,
+          child: content,
+        ),
       ),
     );
   }

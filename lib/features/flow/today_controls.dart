@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../core/feedback/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../domain/day.dart';
@@ -24,13 +24,28 @@ class TodayControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return habit.type == HabitType.measurable
-        ? _Stepper(habit: habit, today: today, color: color, onProgress: onProgress)
-        : _Toggle(habit: habit, today: today, color: color, onProgress: onProgress);
+        ? _Stepper(
+            habit: habit,
+            today: today,
+            color: color,
+            onProgress: onProgress,
+          )
+        : _Toggle(
+            habit: habit,
+            today: today,
+            color: color,
+            onProgress: onProgress,
+          );
   }
 }
 
 class _Toggle extends StatelessWidget {
-  const _Toggle({required this.habit, required this.today, required this.color, required this.onProgress});
+  const _Toggle({
+    required this.habit,
+    required this.today,
+    required this.color,
+    required this.onProgress,
+  });
 
   final Habit habit;
   final Day today;
@@ -42,7 +57,9 @@ class _Toggle extends StatelessWidget {
     final done = habit.isCompletedOn(today);
     final label = done
         ? 'Completed Today'
-        : (habit.isScheduledOn(today) ? 'Tap to Complete' : 'Rest day · Tap to log anyway');
+        : (habit.isScheduledOn(today)
+              ? 'Tap to Complete'
+              : 'Rest day · Tap to log anyway');
 
     return Semantics(
       button: true,
@@ -51,7 +68,7 @@ class _Toggle extends StatelessWidget {
       excludeSemantics: true,
       child: GestureDetector(
         onTap: () {
-          done ? HapticFeedback.lightImpact() : HapticFeedback.mediumImpact();
+          done ? Haptics.light() : Haptics.medium();
           onProgress(today, done ? 0 : habit.targetPerDay);
         },
         child: AnimatedContainer(
@@ -61,13 +78,19 @@ class _Toggle extends StatelessWidget {
           decoration: BoxDecoration(
             color: done ? color.withValues(alpha: 0.14) : AppColors.surface,
             borderRadius: BorderRadius.circular(9),
-            border: Border.all(color: done ? color.withValues(alpha: 0.35) : AppColors.cardBorder),
+            border: Border.all(
+              color: done
+                  ? color.withValues(alpha: 0.35)
+                  : AppColors.cardBorder,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                done
+                    ? Icons.check_circle_rounded
+                    : Icons.radio_button_unchecked_rounded,
                 size: 16,
                 color: done ? color : AppColors.textMuted,
               ),
@@ -80,7 +103,9 @@ class _Toggle extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: done ? AppColors.textPrimary : AppColors.textSecondary,
+                    color: done
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -93,7 +118,12 @@ class _Toggle extends StatelessWidget {
 }
 
 class _Stepper extends StatelessWidget {
-  const _Stepper({required this.habit, required this.today, required this.color, required this.onProgress});
+  const _Stepper({
+    required this.habit,
+    required this.today,
+    required this.color,
+    required this.onProgress,
+  });
 
   final Habit habit;
   final Day today;
@@ -101,7 +131,8 @@ class _Stepper extends StatelessWidget {
   final void Function(Day day, int count) onProgress;
 
   /// Bigger steps for bigger targets (90 minutes moves in 15s, 20 pages in 5s).
-  int get _step => habit.targetPerDay > 50 ? 15 : (habit.targetPerDay > 10 ? 5 : 1);
+  int get _step =>
+      habit.targetPerDay > 50 ? 15 : (habit.targetPerDay > 10 ? 5 : 1);
 
   @override
   Widget build(BuildContext context) {
@@ -118,11 +149,17 @@ class _Stepper extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   text: 'Today: ',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                   children: [
                     TextSpan(
                       text: '$current',
-                      style: TextStyle(fontWeight: FontWeight.w800, color: done ? color : AppColors.textPrimary),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: done ? color : AppColors.textPrimary,
+                      ),
                     ),
                     TextSpan(text: ' / $target ${habit.unit}'),
                   ],
@@ -138,8 +175,11 @@ class _Stepper extends StatelessWidget {
               onTap: current == 0
                   ? null
                   : () {
-                      HapticFeedback.lightImpact();
-                      onProgress(today, current - step < 0 ? 0 : current - step);
+                      Haptics.light();
+                      onProgress(
+                        today,
+                        current - step < 0 ? 0 : current - step,
+                      );
                     },
             ),
             const SizedBox(width: AppSpacing.p4),
@@ -148,7 +188,7 @@ class _Stepper extends StatelessWidget {
               semanticLabel: 'Increase ${habit.title} by $step',
               accent: color,
               onTap: () {
-                HapticFeedback.mediumImpact();
+                Haptics.medium();
                 onProgress(today, current + step);
               },
             ),
@@ -170,7 +210,12 @@ class _Stepper extends StatelessWidget {
 }
 
 class _StepButton extends StatelessWidget {
-  const _StepButton({required this.label, required this.semanticLabel, required this.onTap, this.accent});
+  const _StepButton({
+    required this.label,
+    required this.semanticLabel,
+    required this.onTap,
+    this.accent,
+  });
 
   final String label;
   final String semanticLabel;
@@ -197,10 +242,14 @@ class _StepButton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: tint == null ? AppColors.surface : tint.withValues(alpha: 0.16),
+                color: tint == null
+                    ? AppColors.surface
+                    : tint.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(7),
                 border: Border.all(
-                  color: tint == null ? AppColors.cardBorder : tint.withValues(alpha: 0.4),
+                  color: tint == null
+                      ? AppColors.cardBorder
+                      : tint.withValues(alpha: 0.4),
                   width: 0.8,
                 ),
               ),
@@ -209,7 +258,9 @@ class _StepButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: !enabled ? AppColors.textFaint : (tint ?? AppColors.textPrimary),
+                  color: !enabled
+                      ? AppColors.textFaint
+                      : (tint ?? AppColors.textPrimary),
                 ),
               ),
             ),

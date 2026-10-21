@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/feedback/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/habit_icons.dart';
@@ -64,7 +65,8 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
     _unit = TextEditingController(text: habit?.unit ?? 'times');
     _categories = [
       ..._defaultCategories,
-      if (habit != null && !_defaultCategories.contains(habit.category)) habit.category,
+      if (habit != null && !_defaultCategories.contains(habit.category))
+        habit.category,
     ];
     _category = habit?.category ?? _defaultCategories.first;
     _iconKey = habit?.iconKey ?? 'habit';
@@ -102,9 +104,11 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
 
     final measurable = _type == HabitType.measurable;
     final titleError = HabitForm.validateTitle(_title.text);
-    final targetError = measurable ? HabitForm.validateTarget(_target.text) : null;
+    final targetError = measurable
+        ? HabitForm.validateTarget(_target.text)
+        : null;
     if (titleError != null || targetError != null) {
-      HapticFeedback.heavyImpact();
+      Haptics.heavy();
       setState(() {
         _titleError = titleError;
         _targetError = targetError;
@@ -154,7 +158,10 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_isEditing ? 'Edit Habit' : 'New Habit', style: AppText.sheetTitle),
+          Text(
+            _isEditing ? 'Edit Habit' : 'New Habit',
+            style: AppText.sheetTitle,
+          ),
           const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +172,10 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: accent.withValues(alpha: 0.4), width: 1.2),
+                  border: Border.all(
+                    color: accent.withValues(alpha: 0.4),
+                    width: 1.2,
+                  ),
                 ),
                 child: Icon(HabitIcons.of(_iconKey), size: 22, color: accent),
               ),
@@ -174,11 +184,17 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
                 child: TextField(
                   controller: _title,
                   textCapitalization: TextCapitalization.sentences,
-                  inputFormatters: [LengthLimitingTextInputFormatter(HabitForm.maxTitleLength)],
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(HabitForm.maxTitleLength),
+                  ],
                   onChanged: (_) {
                     if (_titleError != null) setState(() => _titleError = null);
                   },
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Habit name',
                     hintText: 'e.g. Morning 5K, Read 20 pages',
@@ -191,7 +207,11 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
           const SizedBox(height: 14),
           const Text('CHOOSE ICON', style: AppText.fieldLabel),
           const SizedBox(height: 8),
-          IconPicker(selected: _iconKey, accent: accent, onChanged: (key) => setState(() => _iconKey = key)),
+          IconPicker(
+            selected: _iconKey,
+            accent: accent,
+            onChanged: (key) => setState(() => _iconKey = key),
+          ),
           const SizedBox(height: 14),
           const Text('CATEGORY', style: AppText.fieldLabel),
           const SizedBox(height: 8),
@@ -212,7 +232,10 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
           const SizedBox(height: 14),
           const Text('TIME OF DAY', style: AppText.fieldLabel),
           const SizedBox(height: 8),
-          TimeOfDayPicker(selected: _timeOfDay, onChanged: (time) => setState(() => _timeOfDay = time)),
+          TimeOfDayPicker(
+            selected: _timeOfDay,
+            onChanged: (time) => setState(() => _timeOfDay = time),
+          ),
           const SizedBox(height: 14),
           const Text('REPEAT ON', style: AppText.fieldLabel),
           const SizedBox(height: 8),
@@ -223,7 +246,11 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
           const SizedBox(height: 14),
           const Text('TRACKING TYPE', style: AppText.fieldLabel),
           const SizedBox(height: 8),
-          TypePicker(selected: _type, locked: _typeLocked, onChanged: (type) => setState(() => _type = type)),
+          TypePicker(
+            selected: _type,
+            locked: _typeLocked,
+            onChanged: (type) => setState(() => _type = type),
+          ),
           if (_type == HabitType.measurable) ...[
             const SizedBox(height: 12),
             Row(
@@ -233,12 +260,25 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
                   child: TextField(
                     controller: _target,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
                     onChanged: (_) {
-                      if (_targetError != null) setState(() => _targetError = null);
+                      if (_targetError != null) {
+                        setState(() => _targetError = null);
+                      }
                     },
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    decoration: InputDecoration(labelText: 'Daily target', hintText: 'e.g. 8, 20, 90', errorText: _targetError),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'Daily target',
+                      hintText: 'e.g. 8, 20, 90',
+                      errorText: _targetError,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -246,8 +286,15 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
                   child: TextField(
                     controller: _unit,
                     inputFormatters: [LengthLimitingTextInputFormatter(16)],
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    decoration: const InputDecoration(labelText: 'Unit', hintText: 'glasses, pages, mins'),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Unit',
+                      hintText: 'glasses, pages, mins',
+                    ),
                   ),
                 ),
               ],
@@ -256,14 +303,19 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
           const SizedBox(height: 14),
           const Text('ACCENT COLOR', style: AppText.fieldLabel),
           const SizedBox(height: 8),
-          ColorPicker(selected: _color, onChanged: (color) => setState(() => _color = color)),
+          ColorPicker(
+            selected: _color,
+            onChanged: (color) => setState(() => _color = color),
+          ),
           const SizedBox(height: 20),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.onPrimary,
               minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: _save,
             child: Text(
@@ -285,7 +337,15 @@ class _DayPicker extends StatelessWidget {
   final ValueChanged<Set<int>> onChanged;
 
   static const _letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  static const _names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  static const _names = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +363,7 @@ class _DayPicker extends StatelessWidget {
                 final next = {...selected};
                 if (!next.remove(weekday)) next.add(weekday);
                 if (next.isEmpty) return;
-                HapticFeedback.selectionClick();
+                Haptics.selection();
                 onChanged(next);
               },
               child: Container(
@@ -311,10 +371,14 @@ class _DayPicker extends StatelessWidget {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: selected.contains(weekday) ? AppColors.primary.withValues(alpha: 0.20) : AppColors.surface,
+                  color: selected.contains(weekday)
+                      ? AppColors.primary.withValues(alpha: 0.20)
+                      : AppColors.surface,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: selected.contains(weekday) ? AppColors.primary : AppColors.cardBorder,
+                    color: selected.contains(weekday)
+                        ? AppColors.primary
+                        : AppColors.cardBorder,
                     width: selected.contains(weekday) ? 1.2 : 0.8,
                   ),
                 ),
@@ -323,7 +387,9 @@ class _DayPicker extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: selected.contains(weekday) ? AppColors.textPrimary : AppColors.textMuted,
+                    color: selected.contains(weekday)
+                        ? AppColors.textPrimary
+                        : AppColors.textMuted,
                   ),
                 ),
               ),

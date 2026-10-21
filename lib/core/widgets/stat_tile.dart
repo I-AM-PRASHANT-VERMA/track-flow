@@ -88,7 +88,11 @@ class StatPill extends StatelessWidget {
           Text(
             value,
             maxLines: 1,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: valueColor),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: valueColor,
+            ),
           ),
           const SizedBox(height: 2),
           Text(

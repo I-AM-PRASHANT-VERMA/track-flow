@@ -4,7 +4,11 @@ import '../theme/app_colors.dart';
 
 /// Card frame shared by the stats and chart cards.
 class SectionCard extends StatelessWidget {
-  const SectionCard({super.key, required this.child, this.padding = const EdgeInsets.all(16)});
+  const SectionCard({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+  });
 
   final Widget child;
   final EdgeInsets padding;

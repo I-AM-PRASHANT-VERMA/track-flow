@@ -30,7 +30,9 @@ abstract final class HabitRules {
   static Day startDay(Habit habit) {
     final created = Day.of(habit.createdAt);
     final earliestLog = earliestLoggedDay(habit);
-    return earliestLog != null && earliestLog.isBefore(created) ? earliestLog : created;
+    return earliestLog != null && earliestLog.isBefore(created)
+        ? earliestLog
+        : created;
   }
 
   /// Earliest day with a positive log, or null when nothing was ever logged.
@@ -39,7 +41,9 @@ abstract final class HabitRules {
     for (final entry in habit.logs.entries) {
       if (entry.value <= 0) continue;
       final day = Day.tryParseKey(entry.key);
-      if (day != null && (earliest == null || day.isBefore(earliest))) earliest = day;
+      if (day != null && (earliest == null || day.isBefore(earliest))) {
+        earliest = day;
+      }
     }
     return earliest;
   }
@@ -51,8 +55,14 @@ abstract final class HabitRules {
     final earliest = earliestLoggedDay(habit);
     if (earliest == null) return 0;
 
-    var streak = habit.isScheduledOn(today) && habit.isCompletedOn(today) ? 1 : 0;
-    for (var day = today.addDays(-1); !day.isBefore(earliest); day = day.addDays(-1)) {
+    var streak = habit.isScheduledOn(today) && habit.isCompletedOn(today)
+        ? 1
+        : 0;
+    for (
+      var day = today.addDays(-1);
+      !day.isBefore(earliest);
+      day = day.addDays(-1)
+    ) {
       if (!habit.isScheduledOn(day)) continue;
       if (!habit.isCompletedOn(day)) break;
       streak++;

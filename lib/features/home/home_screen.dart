@@ -19,7 +19,12 @@ import 'summary_header.dart';
 /// It rebuilds from the repository and the current day; it owns only UI state
 /// (selected tab, whether the button is expanded).
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.repository, required this.today, this.clock = systemClock});
+  const HomeScreen({
+    super.key,
+    required this.repository,
+    required this.today,
+    this.clock = systemClock,
+  });
 
   final HabitRepository repository;
   final TodayNotifier today;
@@ -32,7 +37,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   HomeTab _tab = HomeTab.flow;
   bool _fabExtended = true;
-  late final Listenable _changes = Listenable.merge([widget.repository, widget.today]);
+  late final Listenable _changes = Listenable.merge([
+    widget.repository,
+    widget.today,
+  ]);
 
   HabitRepository get _repository => widget.repository;
 
@@ -40,9 +48,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     if (_repository.hadUnreadableData) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _snack(
-        'Some saved data could not be read. A copy was kept and nothing was overwritten.',
-      ));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _snack(
+          'Some saved data could not be read. A copy was kept and nothing was overwritten.',
+        ),
+      );
     }
   }
 
@@ -55,13 +65,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _onScroll(ScrollUpdateNotification notification) {
-    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) return false;
+    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) {
+      return false;
+    }
     final extended = notification.metrics.pixels < 24;
     if (extended != _fabExtended) setState(() => _fabExtended = extended);
     return false;
   }
 
-  void _setProgress(Habit habit, Day day, int count) => _repository.setProgress(habit.id, day, count);
+  void _setProgress(Habit habit, Day day, int count) =>
+      _repository.setProgress(habit.id, day, count);
 
   Future<void> _openEditor([Habit? habit]) async {
     final result = await showModalBottomSheet<Habit>(
@@ -77,7 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _delete(Habit habit) {
     final removed = _repository.remove(habit.id);
     if (removed == null) return;
-    _snack('Deleted "${habit.title}"', undo: () => _repository.restore(removed));
+    _snack(
+      'Deleted "${habit.title}"',
+      undo: () => _repository.restore(removed),
+    );
   }
 
   Future<void> _openBackup() async {
@@ -100,7 +116,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          action: undo == null ? null : SnackBarAction(label: 'Undo', onPressed: undo),
+          action: undo == null
+              ? null
+              : SnackBarAction(label: 'Undo', onPressed: undo),
         ),
       );
   }
@@ -140,7 +158,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           onEdit: _openEditor,
                           onDelete: _delete,
                         ),
-                        MatrixView(habits: habits, today: today, onProgress: _setProgress),
+                        MatrixView(
+                          habits: habits,
+                          today: today,
+                          onProgress: _setProgress,
+                        ),
                         HeatmapView(habits: habits, today: today),
                       ],
                     ),
@@ -158,7 +180,10 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 2.5,
         tooltip: 'New habit',
         icon: const Icon(Icons.add_rounded, size: 20),
-        label: const Text('New Habit', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800)),
+        label: const Text(
+          'New Habit',
+          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+        ),
         onPressed: _openEditor,
       ),
     );

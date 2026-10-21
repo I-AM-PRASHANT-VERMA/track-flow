@@ -6,11 +6,17 @@ import 'package:track_flow/domain/habit_stats.dart';
 void main() {
   final today = Day(2026, 3, 18); // a Wednesday
 
-  Habit habit(String id, {Map<String, int> logs = const {}, List<int> days = Habit.everyDay, bool archived = false, DateTime? created}) {
+  Habit habit(
+    String id, {
+    Map<String, int> logs = const {},
+    List<int> days = Habit.everyDay,
+    bool archived = false,
+    DateTime? created,
+  }) {
     return Habit(
       id: id,
       title: id,
-      createdAt: created ?? DateTime(2026, 1, 1),
+      createdAt: created ?? DateTime(2026),
       scheduledDays: days,
       logs: logs,
       isArchived: archived,
@@ -44,7 +50,15 @@ void main() {
     test('a habit created mid-month is not charged for earlier days', () {
       final created = DateTime(2026, 3, 16);
       final summary = HabitStats.month([
-        habit('new', created: created, logs: {Day(2026, 3, 16).key: 1, Day(2026, 3, 17).key: 1, today.key: 1}),
+        habit(
+          'new',
+          created: created,
+          logs: {
+            Day(2026, 3, 16).key: 1,
+            Day(2026, 3, 17).key: 1,
+            today.key: 1,
+          },
+        ),
       ], today);
       expect(summary.monthToDate.scheduled, 3);
       expect(summary.monthToDate.completed, 3);
@@ -54,7 +68,9 @@ void main() {
     });
 
     test('best streak is the longest run, not the current one', () {
-      final oldRun = {for (var i = 0; i < 5; i++) Day(2026, 3, 1).addDays(i).key: 1};
+      final oldRun = {
+        for (var i = 0; i < 5; i++) Day(2026, 3, 1).addDays(i).key: 1,
+      };
       final summary = HabitStats.month([habit('h', logs: oldRun)], today);
       expect(summary.bestStreak, 5);
     });
@@ -72,11 +88,13 @@ void main() {
 
   group('year', () {
     test('active days, peak weekday and totals', () {
-      final logs = {Day(2026, 3, 16).key: 1, Day(2026, 3, 9).key: 1}; // two Mondays
-      final summary = HabitStats.year(
-        [habit('h', logs: logs, created: DateTime(2026, 3, 9))],
-        today,
-      );
+      final logs = {
+        Day(2026, 3, 16).key: 1,
+        Day(2026, 3, 9).key: 1,
+      }; // two Mondays
+      final summary = HabitStats.year([
+        habit('h', logs: logs, created: DateTime(2026, 3, 9)),
+      ], today);
       expect(summary.activeDays, 2);
       expect(summary.peakWeekday, DateTime.monday);
       expect(summary.peakWeekdayRatio, 1.0);

@@ -12,7 +12,10 @@ final class Day implements Comparable<Day> {
   /// The calendar day on which [moment] falls, in the moment's own time zone.
   factory Day.of(DateTime moment) => Day(moment.year, moment.month, moment.day);
 
-  Day._fromUtc(DateTime utc) : year = utc.year, month = utc.month, day = utc.day;
+  Day._fromUtc(DateTime utc)
+    : year = utc.year,
+      month = utc.month,
+      day = utc.day;
 
   final int year;
   final int month;
@@ -29,7 +32,8 @@ final class Day implements Comparable<Day> {
     final month = int.parse(match[2]!);
     final day = int.parse(match[3]!);
     final parsed = Day(year, month, day);
-    final isExact = parsed.year == year && parsed.month == month && parsed.day == day;
+    final isExact =
+        parsed.year == year && parsed.month == month && parsed.day == day;
     return isExact ? parsed : null;
   }
 
@@ -66,7 +70,10 @@ final class Day implements Comparable<Day> {
 
   @override
   bool operator ==(Object other) =>
-      other is Day && other.year == year && other.month == month && other.day == day;
+      other is Day &&
+      other.year == year &&
+      other.month == month &&
+      other.day == day;
 
   @override
   int get hashCode => Object.hash(year, month, day);

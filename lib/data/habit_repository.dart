@@ -114,7 +114,11 @@ final class HabitRepository extends ChangeNotifier {
         } catch (error, stack) {
           _lastWriteError = error;
           FlutterError.reportError(
-            FlutterErrorDetails(exception: error, stack: stack, library: 'habit repository'),
+            FlutterErrorDetails(
+              exception: error,
+              stack: stack,
+              library: 'habit repository',
+            ),
           );
         }
       }

@@ -8,13 +8,17 @@ abstract final class HabitForm {
   static String? validateTitle(String raw) {
     final title = raw.trim();
     if (title.isEmpty) return 'Give the habit a name';
-    if (title.length > maxTitleLength) return 'Keep the name under $maxTitleLength characters';
+    if (title.length > maxTitleLength) {
+      return 'Keep the name under $maxTitleLength characters';
+    }
     return null;
   }
 
   static String? validateTarget(String raw) {
     final target = int.tryParse(raw.trim());
-    if (target == null || target < 1 || target > maxTarget) return 'Enter a number from 1 to $maxTarget';
+    if (target == null || target < 1 || target > maxTarget) {
+      return 'Enter a number from 1 to $maxTarget';
+    }
     return null;
   }
 

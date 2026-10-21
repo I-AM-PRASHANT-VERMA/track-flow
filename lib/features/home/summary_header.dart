@@ -24,13 +24,18 @@ class SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final landscape = MediaQuery.orientationOf(context) == Orientation.landscape;
+    final landscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
     final switcher = _ViewSwitcher(selected: tab, onSelected: onTabSelected);
     final streak = _StreakPill(days: summary.longestCurrentStreak);
     final settings = TouchTarget(
       onTap: onOpenBackup,
       semanticLabel: 'Backup and restore',
-      child: const Icon(Icons.tune_rounded, size: 20, color: AppColors.textSecondary),
+      child: const Icon(
+        Icons.tune_rounded,
+        size: 20,
+        color: AppColors.textSecondary,
+      ),
     );
 
     return DecoratedBox(
@@ -87,7 +92,12 @@ class _Brand extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.asset('assets/images/app_logo.png', width: logoSize, height: logoSize, fit: BoxFit.cover),
+          child: Image.asset(
+            'assets/images/app_logo.png',
+            width: logoSize,
+            height: logoSize,
+            fit: BoxFit.cover,
+          ),
         ),
         const SizedBox(width: AppSpacing.p8),
         const Flexible(
@@ -119,20 +129,34 @@ class _StreakPill extends StatelessWidget {
       label: 'Longest active streak: $days days',
       excludeSemantics: true,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.p8,
+          vertical: AppSpacing.p4,
+        ),
         decoration: BoxDecoration(
           color: AppColors.streakAmber.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.streakAmber.withValues(alpha: 0.25), width: 0.8),
+          border: Border.all(
+            color: AppColors.streakAmber.withValues(alpha: 0.25),
+            width: 0.8,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.local_fire_department_rounded, size: 13, color: AppColors.streakAmber),
+            const Icon(
+              Icons.local_fire_department_rounded,
+              size: 13,
+              color: AppColors.streakAmber,
+            ),
             const SizedBox(width: AppSpacing.p4),
             Text(
               '$days d',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.streakAmber),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.streakAmber,
+              ),
             ),
           ],
         ),
@@ -174,7 +198,11 @@ class _Momentum extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ],
@@ -204,7 +232,10 @@ class _ViewSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(2.5),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Row(
         children: [
           for (final tab in HomeTab.values)
@@ -239,12 +270,18 @@ class _TabLabel extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected ? AppColors.card : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-        border: isSelected ? Border.all(color: AppColors.cardBorder, width: 0.8) : null,
+        border: isSelected
+            ? Border.all(color: AppColors.cardBorder, width: 0.8)
+            : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(tab.icon, size: 13, color: isSelected ? AppColors.primary : AppColors.textMuted),
+          Icon(
+            tab.icon,
+            size: 13,
+            color: isSelected ? AppColors.primary : AppColors.textMuted,
+          ),
           const SizedBox(width: AppSpacing.p4),
           Flexible(
             child: Text(

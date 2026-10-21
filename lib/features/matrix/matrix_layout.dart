@@ -2,9 +2,30 @@ import 'dart:math' as math;
 
 /// Row density the user can pick for the matrix (S / M / L).
 enum MatrixDensity {
-  compact('S', rowHeight: 36, titleWidth: 105, fontSize: 11, iconSize: 13, boxSize: 20),
-  medium('M', rowHeight: 44, titleWidth: 115, fontSize: 12, iconSize: 15, boxSize: 24),
-  comfortable('L', rowHeight: 52, titleWidth: 125, fontSize: 13, iconSize: 17, boxSize: 28);
+  compact(
+    'S',
+    rowHeight: 36,
+    titleWidth: 105,
+    fontSize: 11,
+    iconSize: 13,
+    boxSize: 20,
+  ),
+  medium(
+    'M',
+    rowHeight: 44,
+    titleWidth: 115,
+    fontSize: 12,
+    iconSize: 15,
+    boxSize: 24,
+  ),
+  comfortable(
+    'L',
+    rowHeight: 52,
+    titleWidth: 125,
+    fontSize: 13,
+    iconSize: 17,
+    boxSize: 28,
+  );
 
   const MatrixDensity(
     this.label, {

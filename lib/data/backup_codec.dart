@@ -6,9 +6,15 @@ import 'habit_json.dart';
 /// Why a backup cannot be restored; [message] is shown to the user as-is.
 enum BackupProblem {
   notABackup('This text is not a TrackFlow backup.'),
-  newerVersion('This backup was made by a newer version of TrackFlow. Update the app first.'),
-  unreadableHabit('Some habits in this backup could not be read. Nothing was changed.'),
-  duplicateHabit('This backup lists the same habit twice. Nothing was changed.');
+  newerVersion(
+    'This backup was made by a newer version of TrackFlow. Update the app first.',
+  ),
+  unreadableHabit(
+    'Some habits in this backup could not be read. Nothing was changed.',
+  ),
+  duplicateHabit(
+    'This backup lists the same habit twice. Nothing was changed.',
+  );
 
   const BackupProblem(this.message);
 
@@ -59,19 +65,27 @@ abstract final class BackupCodec {
     if (decoded is Map<String, Object?>) {
       final schema = decoded['schemaVersion'] ?? 1;
       if (schema is! int) throw const BackupException(BackupProblem.notABackup);
-      if (schema > HabitJson.currentSchema) throw const BackupException(BackupProblem.newerVersion);
+      if (schema > HabitJson.currentSchema) {
+        throw const BackupException(BackupProblem.newerVersion);
+      }
       entries = decoded['habits'];
     } else {
       entries = decoded; // a raw 1.0.0 storage dump is a bare list
     }
-    if (entries is! List<Object?>) throw const BackupException(BackupProblem.notABackup);
+    if (entries is! List<Object?>) {
+      throw const BackupException(BackupProblem.notABackup);
+    }
 
     final ids = <String>{};
     final habits = <Habit>[];
     for (final entry in entries) {
       final habit = HabitJson.decode(entry, fallbackCreatedAt: now);
-      if (habit == null) throw const BackupException(BackupProblem.unreadableHabit);
-      if (!ids.add(habit.id)) throw const BackupException(BackupProblem.duplicateHabit);
+      if (habit == null) {
+        throw const BackupException(BackupProblem.unreadableHabit);
+      }
+      if (!ids.add(habit.id)) {
+        throw const BackupException(BackupProblem.duplicateHabit);
+      }
       habits.add(habit);
     }
     return ParsedBackup(habits);

@@ -9,7 +9,9 @@ import '../../domain/day.dart';
 /// whenever the app returns to the foreground, so "today" on screen never stays
 /// on yesterday while the app is left open.
 final class TodayNotifier extends ChangeNotifier with WidgetsBindingObserver {
-  TodayNotifier({Clock clock = systemClock}) : _clock = clock, _today = Day.of(clock()) {
+  TodayNotifier({Clock clock = systemClock})
+    : _clock = clock,
+      _today = Day.of(clock()) {
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextMidnight();
   }
@@ -39,7 +41,10 @@ final class TodayNotifier extends ChangeNotifier with WidgetsBindingObserver {
     _midnight?.cancel();
     final now = _clock();
     final nextMidnight = DateTime(now.year, now.month, now.day + 1);
-    _midnight = Timer(nextMidnight.difference(now) + const Duration(seconds: 1), refresh);
+    _midnight = Timer(
+      nextMidnight.difference(now) + const Duration(seconds: 1),
+      refresh,
+    );
   }
 
   @override
