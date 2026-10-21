@@ -7,6 +7,7 @@ import '../../core/theme/app_text.dart';
 import '../../core/theme/habit_icons.dart';
 import '../../domain/day.dart';
 import '../../domain/habit.dart';
+import '../../domain/habit_rules.dart';
 import '../../domain/habit_stats.dart';
 import 'matrix_layout.dart';
 import 'month_summary_card.dart';
@@ -288,6 +289,7 @@ class _HabitRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = AppColors.habitColor(habit.colorValue);
+    final start = HabitRules.startDay(habit);
     return SizedBox(
       height: density.rowHeight,
       child: Row(
@@ -320,16 +322,17 @@ class _HabitRow extends StatelessWidget {
               ),
             ),
           ),
-          for (final day in days) _cell(day, color),
+          for (final day in days) _cell(day, color, start),
         ],
       ),
     );
   }
 
-  Widget _cell(Day day, Color color) {
+  Widget _cell(Day day, Color color, Day start) {
     final isToday = day == today;
     final done = habit.isCompletedOn(day);
-    final scheduled = habit.isScheduledOn(day);
+    // Days before the habit started are not expected, exactly as the stats count them.
+    final scheduled = habit.isScheduledOn(day) && !day.isBefore(start);
 
     final Color border;
     if (done) {

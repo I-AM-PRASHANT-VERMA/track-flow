@@ -4,6 +4,7 @@ import '../../core/feedback/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../domain/day.dart';
 import '../../domain/habit.dart';
+import '../../domain/habit_rules.dart';
 
 /// The last seven days ending today; tapping a day toggles it done / not done.
 class WeekStrip extends StatelessWidget {
@@ -34,6 +35,7 @@ class WeekStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final start = HabitRules.startDay(habit);
     return Container(
       padding: const EdgeInsets.only(left: 10, right: 6),
       decoration: BoxDecoration(
@@ -62,16 +64,17 @@ class WeekStrip extends StatelessWidget {
             ),
           ),
           for (var offset = 6; offset >= 0; offset--)
-            _cell(today.addDays(-offset)),
+            _cell(today.addDays(-offset), start),
         ],
       ),
     );
   }
 
-  Widget _cell(Day day) {
+  Widget _cell(Day day, Day start) {
     final isToday = day == today;
     final done = habit.isCompletedOn(day);
-    final scheduled = habit.isScheduledOn(day);
+    // Days before the habit started are not expected, exactly as the stats count them.
+    final scheduled = habit.isScheduledOn(day) && !day.isBefore(start);
 
     final fill = !scheduled
         ? Colors.transparent

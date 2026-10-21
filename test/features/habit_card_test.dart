@@ -114,6 +114,17 @@ void main() {
     expect(find.text('Rest day · Tap to log anyway'), findsOneWidget);
   });
 
+  testWidgets('days before a habit was created are not shown as missed', (
+    tester,
+  ) async {
+    await pumpCard(
+      tester,
+      Habit(id: 'n', title: 'New', createdAt: DateTime(2026, 3, 18, 9)),
+    );
+    expect(find.bySemanticsLabel('Tuesday 17, rest day'), findsOneWidget);
+    expect(find.bySemanticsLabel('Wednesday 18, not done'), findsOneWidget);
+  });
+
   testWidgets('fits a 320 dp screen at 1.3x text without overflow', (
     tester,
   ) async {
