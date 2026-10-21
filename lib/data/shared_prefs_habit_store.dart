@@ -13,7 +13,7 @@ import 'habit_store.dart';
 /// - writes only the current key, so the 1.0.0 key stays intact for a rollback;
 /// - never overwrites data it could not read: a raw copy goes to a recovery key.
 final class SharedPrefsHabitStore implements HabitStore {
-  SharedPrefsHabitStore(this._prefs, {required Clock clock}) : _clock = clock;
+  SharedPrefsHabitStore(this._prefs, {required this._clock});
 
   /// Released 1.0.0 key: a bare JSON list (schema 1). Read once for migration,
   /// never written or deleted.

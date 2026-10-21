@@ -27,9 +27,16 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appLabel"] = "TrackFlow"
     }
 
     buildTypes {
+        debug {
+            // Debug builds install next to the real app (own id, own data, own
+            // name), so testing on a phone can never touch the user's habits.
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appLabel"] = "TrackFlow Dev"
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
