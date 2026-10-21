@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/time/today_notifier.dart';
@@ -7,7 +8,11 @@ import 'domain/clock.dart';
 import 'features/home/home_screen.dart';
 
 class TrackFlowApp extends StatefulWidget {
-  const TrackFlowApp({super.key, required this.repository, this.clock = systemClock});
+  const TrackFlowApp({
+    super.key,
+    required this.repository,
+    this.clock = systemClock,
+  });
 
   final HabitRepository repository;
   final Clock clock;
@@ -31,7 +36,15 @@ class _TrackFlowAppState extends State<TrackFlowApp> {
       title: 'TrackFlow',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: HomeScreen(repository: widget.repository, today: _today, clock: widget.clock),
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: AppTheme.systemBars,
+        child: child ?? const SizedBox.shrink(),
+      ),
+      home: HomeScreen(
+        repository: widget.repository,
+        today: _today,
+        clock: widget.clock,
+      ),
     );
   }
 }

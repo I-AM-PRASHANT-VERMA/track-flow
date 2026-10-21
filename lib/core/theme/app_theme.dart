@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 
 abstract final class AppTheme {
+  /// Black status and navigation bars with light icons. Applied through an
+  /// AnnotatedRegion at the app root, which Flutter re-applies every frame; a
+  /// one-time SystemChrome call can be overridden once rendering starts.
+  static const SystemUiOverlayStyle systemBars = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+    systemNavigationBarColor: AppColors.background,
+    systemNavigationBarDividerColor: AppColors.background,
+    systemNavigationBarIconBrightness: Brightness.light,
+  );
+
   static ThemeData get dark => ThemeData(
     brightness: Brightness.dark,
     useMaterial3: true,
@@ -42,8 +55,9 @@ abstract final class AppTheme {
     ),
   );
 
-  static OutlineInputBorder _border(Color color, {double width = 1}) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: color, width: width),
-  );
+  static OutlineInputBorder _border(Color color, {double width = 1}) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: color, width: width),
+      );
 }

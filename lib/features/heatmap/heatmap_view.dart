@@ -45,7 +45,9 @@ class _HeatmapViewState extends State<HeatmapView> {
   @override
   void didUpdateWidget(HeatmapView old) {
     super.didUpdateWidget(old);
-    if (!identical(old.habits, widget.habits) || old.today != widget.today) _recompute();
+    if (!identical(old.habits, widget.habits) || old.today != widget.today) {
+      _recompute();
+    }
   }
 
   void _recompute() {
@@ -68,12 +70,19 @@ class _HeatmapViewState extends State<HeatmapView> {
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered;
-    final accent = filtered == null ? AppColors.primary : AppColors.habitColor(filtered.colorValue);
+    final accent = filtered == null
+        ? AppColors.primary
+        : AppColors.habitColor(filtered.colorValue);
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return ListView(
       key: const PageStorageKey('heatmap'),
-      padding: EdgeInsets.fromLTRB(AppSpacing.p16, 6, AppSpacing.p16, AppSpacing.fabClearance + bottomInset),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.p16,
+        6,
+        AppSpacing.p16,
+        AppSpacing.fabClearance + bottomInset,
+      ),
       children: [
         _filters(),
         const SizedBox(height: AppSpacing.p12),
@@ -81,7 +90,11 @@ class _HeatmapViewState extends State<HeatmapView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _CanvasTitle(subtitle: filtered?.title ?? 'Daily completion across all habits', accent: accent),
+              _CanvasTitle(
+                subtitle:
+                    filtered?.title ?? 'Daily completion across all habits',
+                accent: accent,
+              ),
               const SizedBox(height: AppSpacing.p16),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -89,12 +102,19 @@ class _HeatmapViewState extends State<HeatmapView> {
                 child: GestureDetector(
                   onTapUp: (details) {
                     final day = _grid.dayAtPosition(details.localPosition);
-                    if (day != null) setState(() => _selected = day == _selected ? null : day);
+                    if (day != null) {
+                      setState(() => _selected = day == _selected ? null : day);
+                    }
                   },
                   child: RepaintBoundary(
                     child: CustomPaint(
                       size: HeatmapGrid.size,
-                      painter: HeatmapPainter(grid: _grid, cells: _cells, accent: accent, selected: _selected),
+                      painter: HeatmapPainter(
+                        grid: _grid,
+                        cells: _cells,
+                        accent: accent,
+                        selected: _selected,
+                      ),
                     ),
                   ),
                 ),
@@ -142,12 +162,20 @@ class _HeatmapViewState extends State<HeatmapView> {
 
   /// Inspector line for [day], counting the same habits as the cell colour.
   String _describe(Day day) {
+    // Cells are stored day by day from the grid's first day.
+    if (_cells[day.daysSince(_grid.firstDay)].kind == HeatKind.none) {
+      return 'No habits yet';
+    }
     final habit = _filtered;
     if (habit == null) {
       final tally = HabitStats.onDay(_active, day);
-      return tally.scheduled == 0 ? 'Rest day' : '${tally.completed} of ${tally.scheduled} done';
+      return tally.scheduled == 0
+          ? 'Rest day'
+          : '${tally.completed} of ${tally.scheduled} done';
     }
-    if (!habit.isScheduledOn(day) && habit.progressOn(day) == 0) return 'Rest day';
+    if (!habit.isScheduledOn(day) && habit.progressOn(day) == 0) {
+      return 'Rest day';
+    }
     if (habit.type == HabitType.measurable) {
       return '${habit.progressOn(day)} / ${habit.targetPerDay} ${habit.unit}';
     }
@@ -172,14 +200,23 @@ class _CanvasTitle extends StatelessWidget {
             children: [
               const Text(
                 '365-DAY CONTRIBUTION CANVAS',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5, color: AppColors.textMuted),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: AppColors.textMuted,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ],
           ),
@@ -219,8 +256,9 @@ class _Legend extends StatelessWidget {
             children: [
               const Text('Less', style: caption),
               const SizedBox(width: 4),
-              box(AppColors.surface),
-              for (final alpha in [0.42, 0.60, 0.78, 0.95]) box(accent.withValues(alpha: alpha)),
+              box(AppColors.cellMissed),
+              for (final alpha in [0.42, 0.60, 0.78, 0.95])
+                box(accent.withValues(alpha: alpha)),
               const SizedBox(width: 4),
               const Text('More', style: caption),
             ],
@@ -228,7 +266,10 @@ class _Legend extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: [box(Colors.transparent, border: AppColors.cellRestBorder), const Text(' Rest day', style: caption)],
+            children: [
+              box(Colors.transparent, border: AppColors.cellRestBorder),
+              const Text(' Rest day', style: caption),
+            ],
           ),
         ],
       ),
@@ -260,11 +301,22 @@ class _Inspector extends StatelessWidget {
                 DateFormat('EEE, d MMM yyyy').format(day.toLocalDateTime()),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
             const SizedBox(width: 8),
-            Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primary)),
+            Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primary,
+              ),
+            ),
           ],
         ),
       ),
@@ -302,14 +354,20 @@ class _FilterChip extends StatelessWidget {
               color: selected ? color.withValues(alpha: 0.20) : AppColors.card,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: selected ? color.withValues(alpha: 0.5) : AppColors.cardBorder,
+                color: selected
+                    ? color.withValues(alpha: 0.5)
+                    : AppColors.cardBorder,
                 width: selected ? 1.0 : 0.8,
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 13, color: selected ? color : AppColors.textMuted),
+                Icon(
+                  icon,
+                  size: 13,
+                  color: selected ? color : AppColors.textMuted,
+                ),
                 const SizedBox(width: 5),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 160),
@@ -320,7 +378,9 @@ class _FilterChip extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                      color: selected ? AppColors.textPrimary : AppColors.textMuted,
+                      color: selected
+                          ? AppColors.textPrimary
+                          : AppColors.textMuted,
                     ),
                   ),
                 ),

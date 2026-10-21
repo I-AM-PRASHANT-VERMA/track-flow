@@ -12,7 +12,13 @@ abstract final class AppColors {
   // Grid cells (matrix and heatmap)
   static const Color cellEmpty = Color(0xFF161619);
   static const Color cellBorder = Color(0xFF333338);
-  static const Color cellRestBorder = Color(0xFF26262B);
+  static const Color cellRestBorder = Color(0xFF3A3A42);
+
+  /// Heatmap day before any habit existed: present but quiet.
+  static const Color cellNone = Color(0xFF0F0F11);
+
+  /// Heatmap day that was scheduled but nothing was done.
+  static const Color cellMissed = Color(0xFF1F1F24);
 
   // Text
   static const Color textPrimary = Color(0xFFF4F4F5);
@@ -40,5 +46,6 @@ abstract final class AppColors {
     Color(0xFF3B82F6), // blue
   ];
 
-  static Color habitColor(int value) => value == 0 ? habitPalette.first : Color(value);
+  static Color habitColor(int value) =>
+      value == 0 ? habitPalette.first : Color(value);
 }

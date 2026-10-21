@@ -6,7 +6,10 @@ enum HeatKind {
   /// After today: not drawn.
   future,
 
-  /// Nothing was scheduled (or no habit existed yet): drawn hollow.
+  /// No habit existed yet: drawn as a faint empty cell, like GitHub's empty days.
+  none,
+
+  /// Habits existed but none was scheduled (a rest day): drawn hollow.
   rest,
 
   /// Scheduled but nothing done: drawn as an empty filled cell.
@@ -20,6 +23,7 @@ final class HeatCell {
   const HeatCell(this.kind, [this.intensity = 0]);
 
   static const HeatCell future = HeatCell(HeatKind.future);
+  static const HeatCell none = HeatCell(HeatKind.none);
   static const HeatCell rest = HeatCell(HeatKind.rest);
   static const HeatCell missed = HeatCell(HeatKind.missed);
 
@@ -48,15 +52,22 @@ List<HeatCell> buildHeatCells(HeatmapGrid grid, List<Habit> habits) {
         continue;
       }
 
+      var started = 0;
       var scheduled = 0;
       var completed = 0;
       for (var i = 0; i < habits.length; i++) {
         final habit = habits[i];
-        if (day.isBefore(starts[i]) || !habit.isScheduledOn(day)) continue;
+        if (day.isBefore(starts[i])) continue;
+        started++;
+        if (!habit.isScheduledOn(day)) continue;
         scheduled++;
         if (habit.isCompletedOn(day)) completed++;
       }
 
+      if (started == 0) {
+        cells.add(HeatCell.none);
+        continue;
+      }
       if (scheduled == 0) {
         cells.add(HeatCell.rest);
         continue;
@@ -64,7 +75,9 @@ List<HeatCell> buildHeatCells(HeatmapGrid grid, List<Habit> habits) {
       final intensity = single != null && single.type == HabitType.measurable
           ? (single.progressOn(day) / single.targetPerDay).clamp(0.0, 1.0)
           : completed / scheduled;
-      cells.add(intensity == 0 ? HeatCell.missed : HeatCell(HeatKind.done, intensity));
+      cells.add(
+        intensity == 0 ? HeatCell.missed : HeatCell(HeatKind.done, intensity),
+      );
     }
   }
   return cells;

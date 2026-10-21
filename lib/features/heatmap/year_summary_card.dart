@@ -8,12 +8,25 @@ import '../../domain/habit_stats.dart';
 
 /// Past-365-days numbers under the canvas.
 class YearSummaryCard extends StatelessWidget {
-  const YearSummaryCard({super.key, required this.summary, required this.isFiltered});
+  const YearSummaryCard({
+    super.key,
+    required this.summary,
+    required this.isFiltered,
+  });
 
   final YearSummary summary;
   final bool isFiltered;
 
-  static const _weekdays = ['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static const _weekdays = [
+    '',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +42,21 @@ class YearSummaryCard extends StatelessWidget {
               Icon(Icons.bar_chart_rounded, size: 15, color: AppColors.primary),
               SizedBox(width: 6),
               Expanded(
-                child: Text('ANNUAL CONSISTENCY', maxLines: 1, overflow: TextOverflow.ellipsis, style: AppText.sectionLabel),
+                child: Text(
+                  'ANNUAL CONSISTENCY',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.sectionLabel,
+                ),
               ),
-              Text('PAST 365 DAYS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted)),
+              Text(
+                'PAST 365 DAYS',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMuted,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -62,7 +87,9 @@ class YearSummaryCard extends StatelessWidget {
               value: total.ratio,
               minHeight: 6,
               backgroundColor: AppColors.track,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.primary,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -71,17 +98,26 @@ class YearSummaryCard extends StatelessWidget {
               Expanded(
                 child: StatPill(
                   value: peak == null ? '–' : _weekdays[peak],
-                  label: peak == null ? 'Peak Day' : 'Peak Day (${(summary.peakWeekdayRatio * 100).round()}%)',
+                  label: peak == null
+                      ? 'Peak Day'
+                      : 'Peak Day (${(summary.peakWeekdayRatio * 100).round()}%)',
                   valueColor: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: StatPill(value: '${summary.bestStreak} d', label: 'Best Streak', valueColor: AppColors.streakAmber),
+                child: StatPill(
+                  value: '${summary.bestStreak} d',
+                  label: 'Best Streak',
+                  valueColor: AppColors.streakAmber,
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: StatPill(value: '${summary.habitCount}', label: isFiltered ? 'Filtered' : 'Tracked Habits'),
+                child: StatPill(
+                  value: '${summary.habitCount}',
+                  label: isFiltered ? 'Filtered' : 'Tracked Habits',
+                ),
               ),
             ],
           ),

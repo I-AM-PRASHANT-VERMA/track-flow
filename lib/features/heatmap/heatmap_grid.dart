@@ -6,7 +6,8 @@ import '../../domain/day.dart';
 /// (Monday to Sunday, top to bottom) and the last column is the week of
 /// [today], so a row always means the same weekday, as on GitHub.
 final class HeatmapGrid {
-  HeatmapGrid(this.today) : firstDay = today.startOfWeek.addDays(-(columns - 1) * 7);
+  HeatmapGrid(this.today)
+    : firstDay = today.startOfWeek.addDays(-(columns - 1) * 7);
 
   static const int columns = 53;
   static const int rows = 7;
@@ -15,15 +16,22 @@ final class HeatmapGrid {
   static const double stride = cellSize + gap;
   static const double labelHeight = 16;
 
-  static const Size size = Size(columns * stride - gap, labelHeight + rows * stride - gap);
+  static const Size size = Size(
+    columns * stride - gap,
+    labelHeight + rows * stride - gap,
+  );
 
   final Day today;
   final Day firstDay;
 
   Day dayAt(int column, int row) => firstDay.addDays(column * 7 + row);
 
-  Rect rectAt(int column, int row) =>
-      Rect.fromLTWH(column * stride, labelHeight + row * stride, cellSize, cellSize);
+  Rect rectAt(int column, int row) => Rect.fromLTWH(
+    column * stride,
+    labelHeight + row * stride,
+    cellSize,
+    cellSize,
+  );
 
   /// The past or current day under [position]; null for labels, gaps between
   /// cells, positions outside the grid and days after [today].
@@ -33,7 +41,10 @@ final class HeatmapGrid {
     final column = position.dx ~/ stride;
     final row = y ~/ stride;
     if (column >= columns || row >= rows) return null;
-    if (position.dx - column * stride > cellSize || y - row * stride > cellSize) return null;
+    if (position.dx - column * stride > cellSize ||
+        y - row * stride > cellSize) {
+      return null;
+    }
     final day = dayAt(column, row);
     return day.isAfter(today) ? null : day;
   }
@@ -43,7 +54,8 @@ final class HeatmapGrid {
     return [
       for (var column = 0; column < columns; column++)
         for (var row = 0; row < rows; row++)
-          if (dayAt(column, row) case final day when day.day == 1 && !day.isAfter(today))
+          if (dayAt(column, row) case final day
+              when day.day == 1 && !day.isAfter(today))
             (column: column, month: day.month),
     ];
   }
