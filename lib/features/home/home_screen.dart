@@ -80,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await showModalBottomSheet<Habit>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => HabitEditorSheet(initial: habit, clock: widget.clock),
     );
@@ -100,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final replaced = await showModalBottomSheet<List<Habit>>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => BackupSheet(repository: _repository, clock: widget.clock),
     );
@@ -174,7 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        isExtended: _fabExtended,
+        // Full label only at the top of Today's Flow; on the statistics tabs a
+        // compact button keeps the numbers underneath readable.
+        isExtended: _fabExtended && _tab == HomeTab.flow,
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.onPrimary,
         elevation: 2.5,

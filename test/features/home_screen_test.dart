@@ -54,6 +54,18 @@ void main() {
     );
   });
 
+  testWidgets('the New Habit label shows only on Today\'s Flow', (
+    tester,
+  ) async {
+    await pumpTrackFlow(tester, habits: [testHabit('Run')]);
+    expect(find.text('New Habit'), findsOneWidget);
+
+    await tester.tap(find.text('7-Day Matrix'));
+    await tester.pumpAndSettle();
+    expect(find.text('New Habit'), findsNothing);
+    expect(find.byTooltip('New habit'), findsOneWidget);
+  });
+
   testWidgets('deleting asks for nothing but can be undone', (tester) async {
     final (repository, _) = await pumpTrackFlow(
       tester,
