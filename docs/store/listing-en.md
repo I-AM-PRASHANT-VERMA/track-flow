@@ -43,8 +43,8 @@ PRIVATE
 - Category: Productivity
 - Tags (choose from what the Console offers): habit tracker, productivity, routine
 - Contact email: codetrail@outlook.com
-- Privacy policy URL: https://sites.google.com/view/trackflow
-- Website (optional): https://sites.google.com/view/trackflow/terms-of-use
+- Privacy policy URL: https://sites.google.com/view/trackflow-app
+- Website (optional): https://sites.google.com/view/trackflow-app/terms-of-use
 
 ## Graphics
 

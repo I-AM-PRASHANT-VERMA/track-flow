@@ -11,7 +11,7 @@ New personal developer accounts must run a closed test before they can publish t
 ## Steps in Play Console (owner)
 
 1. **Create app**: name "TrackFlow: Habit Tracker", default language English, App, Free; accept the declarations.
-2. **Privacy policy** is published at https://sites.google.com/view/trackflow; fill **App content** with `play-console-answers.md`.
+2. **Privacy policy** is published at https://sites.google.com/view/trackflow-app; fill **App content** with `play-console-answers.md`.
 3. **Store listing**: paste `listing-en.md`, upload the icon, feature graphic and screenshots.
 4. **Testing -> Closed testing -> Create track** (or use "Alpha"). Countries: same as you plan for production.
 5. **Testers**: create an email list (or a Google Group) with **at least 15 people** (a buffer above 12: anyone who opts out during the 14 days breaks the count). Each tester needs a Google account on an Android phone.
