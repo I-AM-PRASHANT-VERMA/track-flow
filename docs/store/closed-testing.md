@@ -8,6 +8,10 @@ New personal developer accounts must run a closed test before they can publish t
 - Store listing text, privacy policy text, Data safety and content rating answers (`listing-en.md`, `privacy-policy.html`, `play-console-answers.md`).
 - App icon 512, feature graphic 1024 x 500 and phone screenshots.
 
+## Internal testing first (optional, 10 minutes)
+
+Before the 14-day closed test you can upload the same bundle to **Testing -> Internal testing**. It has no Google review and is available within minutes to up to 100 testers (add your own email). Install it from the Play Store on your phone and check that it opens and your data survives. It does **not** count toward the 14 days.
+
 ## Steps in Play Console (owner)
 
 1. **Create app**: name "TrackFlow: Habit Tracker", default language English, App, Free; accept the declarations.
