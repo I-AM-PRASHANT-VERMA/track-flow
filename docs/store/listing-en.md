@@ -50,4 +50,4 @@ PRIVATE
 
 - App icon 512 x 512: `3 - Store graphics/playstore_icon_512.png`
 - Feature graphic 1024 x 500: `3 - Store graphics/feature_graphic_1024x500.png`
-- Phone screenshots 1080 x 1920: `3 - Store graphics/phone screenshots/` (taken from the release build)
+- Phone screenshots 1080 x 1920: `3 - Store graphics/phone screenshots/` (real release-build screens in a phone frame with a caption; made by `tool/store/make_screenshots.py`)
