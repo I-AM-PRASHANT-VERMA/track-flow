@@ -11,7 +11,7 @@ Answers for the Play Console forms, matching what the app really does (release b
 
 ## Privacy policy
 
-Published (22 Oct 2026) as the home page of the Google Site **TrackFlow** (keynetbox@gmail.com account): `https://sites.google.com/view/trackflow-app`. Put that link in **App content -> Privacy policy**. Play needs a working web link, not a file. The page text is `privacy-policy.html`; edit the site and this file together.
+Published (22 Oct 2026) as the home page of the Google Site **TrackFlow**: `https://sites.google.com/view/trackflow-app`. Put that link in **App content -> Privacy policy**. Play needs a working web link, not a file. The page text is `privacy-policy.html`; edit the site and this file together.
 
 ## Terms of use
 
