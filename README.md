@@ -39,7 +39,7 @@ flutter pub get
 flutter run
 ```
 
-Debug builds install as **TrackFlow Dev** (`com.trackflow.app.track_flow.dev`) next to the release app, so testing on a phone never touches real data.
+Debug builds install as **TrackFlow Dev** (`com.codetrail.trackflow.dev`) next to the release app, so testing on a phone never touches real data.
 
 Before pushing, run the same checks as CI (format, analyze, tests, coverage ratchet):
 

@@ -1,9 +1,9 @@
 """Builds realistic sample habits (schema 2) for the store screenshots.
 
-Writes a SharedPreferences XML for the DEBUG app (com.trackflow.app.track_flow.dev)
+Writes a SharedPreferences XML for the DEBUG app (com.codetrail.trackflow.dev)
 on an emulator; never use it on a phone with real data. Usage:
     python tool/store/make_demo_seed.py YYYY-MM-DD out.xml
-then: adb exec-in "run-as com.trackflow.app.track_flow.dev sh -c 'cat > shared_prefs/FlutterSharedPreferences.xml'" < out.xml
+then: adb exec-in "run-as com.codetrail.trackflow.dev sh -c 'cat > shared_prefs/FlutterSharedPreferences.xml'" < out.xml
 """
 import json
 import random

@@ -1,4 +1,4 @@
-package com.trackflow.app.track_flow
+package com.codetrail.trackflow
 
 import io.flutter.embedding.android.FlutterActivity
 

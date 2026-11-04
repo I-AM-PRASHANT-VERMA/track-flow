@@ -4,7 +4,7 @@ New personal developer accounts must run a closed test before they can publish t
 
 ## What is already done
 
-- Signed release bundle `trackflow-1.0.0+1.aab` (upload key, version 1.0.0, code 1).
+- Signed release bundle `trackflow-1.0.0+1.aab` (package `com.codetrail.trackflow`, upload key, version 1.0.0, code 1, shrunk and obfuscated).
 - Store listing text, privacy policy text, Data safety and content rating answers (`listing-en.md`, `privacy-policy.html`, `play-console-answers.md`).
 - App icon 512, feature graphic 1024 x 500 and phone screenshots.
 
@@ -53,4 +53,4 @@ First test release of TrackFlow. Please use it daily: add 3 or more habits, chec
 
 ## Uploading a fixed build during the test
 
-Raise the number after `+` in `pubspec.yaml` (1.0.0+2, 1.0.0+3, ...), build `flutter build appbundle --release`, upload it to the **same closed track**. Testers stay opted in; the 14 days keep counting.
+Raise the number after `+` in `pubspec.yaml` (1.0.0+2, 1.0.0+3, ...), build `flutter build appbundle --release --obfuscate --split-debug-info=.tmp/symbols` (keep the `.tmp/symbols` folder: it decodes crash traces), upload it to the **same closed track**. Testers stay opted in; the 14 days keep counting.

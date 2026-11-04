@@ -17,7 +17,7 @@ val keystoreProperties = Properties().apply {
 val hasUploadKey = keystorePropertiesFile.exists()
 
 android {
-    namespace = "com.trackflow.app.track_flow"
+    namespace = "com.codetrail.trackflow"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -28,7 +28,7 @@ android {
 
     defaultConfig {
         // Permanent once published on Google Play.
-        applicationId = "com.trackflow.app.track_flow"
+        applicationId = "com.codetrail.trackflow"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         // From pubspec.yaml "version: name+code"; every Play upload needs a higher code.
@@ -57,6 +57,12 @@ android {
         }
         release {
             signingConfig = signingConfigs.getByName(if (hasUploadKey) "release" else "debug")
+            // Smaller, harder-to-read release: R8 shrinks and renames the Java/Kotlin
+            // side, and unused resources are dropped. Flutter code is obfuscated by the
+            // --obfuscate build flag (see docs/store/closed-testing.md).
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
